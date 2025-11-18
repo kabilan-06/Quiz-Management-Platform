@@ -1,0 +1,32 @@
+# Java / Maven
+/target/
+.classpath
+.project
+.settings/
+*.class
+*.jar
+*.war
+*.ear
+
+# IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Node / React
+/node_modules/
+/reactapp/build/
+npm-debug.log
+yarn-error.log
+
+# Operating system
+Thumbs.db
+.DS_Store
+
+# Logs
+.log
+
+# Environment
+.env
