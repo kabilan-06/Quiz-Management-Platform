@@ -8,7 +8,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "quizzes")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Quiz {
@@ -18,9 +19,9 @@ public class Quiz {
 
     @Column(nullable = false)
     private String title;
-    
+
     private String description;
-    
+
     @Column(nullable = false)
     private int timeLimit;
 
@@ -37,5 +38,61 @@ public class Quiz {
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now();
         }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getTimeLimit() {
+        return timeLimit;
+    }
+
+    public void setTimeLimit(int timeLimit) {
+        this.timeLimit = timeLimit;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public List<Question> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
+    }
+
+    public List<QuizAttempt> getAttempts() {
+        return attempts;
+    }
+
+    public void setAttempts(List<QuizAttempt> attempts) {
+        this.attempts = attempts;
     }
 }
