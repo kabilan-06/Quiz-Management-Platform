@@ -65,7 +65,7 @@ export default function AttendQuiz() {
 
     try {
       setSubmitting(true);
-      const res = await axios.post(
+      await axios.post(
         "http://localhost:8080/api/quiz-attempts",
         payload
       );

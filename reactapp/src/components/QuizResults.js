@@ -7,7 +7,7 @@ export default function QuizResults() {
   const { quizId } = useParams();
   const navigate = useNavigate();
   const [attempts, setAttempts] = useState([]);
-  const [quizzes, setQuizzes] = useState([]);
+  // const [quizzes, setQuizzes] = useState([]); // Removed unused variable
   const [loading, setLoading] = useState(true);
   const user = JSON.parse(localStorage.getItem("user"));
   const role = localStorage.getItem("role");
@@ -65,7 +65,7 @@ export default function QuizResults() {
       <h2>Quiz Results</h2>
       {attempts.map((attempt) => {
         // Safe access: check if username exists directly or inside user object
-        const username = attempt.username || attempt.user?.username || "Unknown Student";
+        // const username = attempt.username || attempt.user?.username || "Unknown Student"; // Removed unused variable
 
         return (
           <div
