@@ -7,7 +7,7 @@ export default function QuizResults() {
   const { quizId } = useParams();
   const navigate = useNavigate();
   const [attempts, setAttempts] = useState([]);
-  const [quizzes, setQuizzes] = useState([]);
+  const [quizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const user = JSON.parse(localStorage.getItem("user"));
   const role = localStorage.getItem("role");
