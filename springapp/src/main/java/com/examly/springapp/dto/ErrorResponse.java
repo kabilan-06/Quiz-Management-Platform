@@ -3,17 +3,17 @@ package com.examly.springapp.dto;
 import java.util.List;
 
 public class ErrorResponse {
+    public ErrorResponse(int status, String message, List<String> errors) {
+        this.status = status;
+        this.message = message;
+        this.errors = errors;
+    }
+
     private int status;
     private String message;
     private List<String> errors;
 
     public ErrorResponse() {
-    }
-
-    public ErrorResponse(int status, String message, List<String> errors) {
-        this.status = status;
-        this.message = message;
-        this.errors = errors;
     }
 
     public int getStatus() {
