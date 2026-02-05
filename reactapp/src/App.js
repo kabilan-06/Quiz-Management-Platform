@@ -11,6 +11,7 @@ import Results from './components/Results';
 import { getQuizzes } from './utils/api';
 import Login from './components/Login';
 import Signup from './components/Signup';
+import MentorDashboard from './components/MentorDashboard';
 
 function App() {
   const [quizzes, setQuizzes] = useState([]);
@@ -70,7 +71,9 @@ function AppContent({ quizzes }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+      background: 'linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%)',
+      fontFamily: 'Segoe UI, Arial, sans-serif',
+      color: '#222'
     }}>
       <Navbar />
       <main style={{
@@ -80,12 +83,13 @@ function AppContent({ quizzes }) {
         margin: '0 auto'
       }}>
         <div style={{
-          background: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: 'var(--border-radius)',
-          boxShadow: 'var(--box-shadow)',
+          background: 'rgba(255, 255, 255, 0.97)',
+          backdropFilter: 'blur(24px)',
+          borderRadius: '32px',
+          boxShadow: '0 8px 32px rgba(58,134,255,0.08)',
           padding: '2.5rem',
-          minHeight: '500px'
+          minHeight: '500px',
+          transition: 'box-shadow 0.3s',
         }} className="fade-in">
           <Routes>
             <Route path="/home" element={<Home />} />
@@ -95,6 +99,7 @@ function AppContent({ quizzes }) {
             <Route path="/take-quiz/:quizId" element={<AttendQuiz />} />
             <Route path="/results/:quizId" element={<QuizResults />} />
             <Route path="/results" element={<Results />} />
+            <Route path="/mentor-dashboard" element={<MentorDashboard />} />
           </Routes>
         </div>
       </main>

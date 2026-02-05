@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Notification from './Notification';
 
 const Home = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const role = localStorage.getItem("role");
-  
+
   const containerStyle = {
     textAlign: 'center',
     padding: '2rem 0'
@@ -77,16 +78,25 @@ const Home = () => {
     marginBottom: '1rem'
   };
 
+  // Notification demo
+  const [notif, setNotif] = useState({ message: '', type: 'info' });
+  const showSuccess = () => setNotif({ message: 'Welcome back! 🎉', type: 'success' });
+  const showError = () => setNotif({ message: 'Something went wrong!', type: 'error' });
+
   return (
     <div style={containerStyle} className="fade-in">
+      <Notification message={notif.message} type={notif.type} onClose={() => setNotif({ message: '', type: 'info' })} />
       <h1 style={welcomeStyle}>Welcome to QuizMaster Pro</h1>
       <div style={roleStyle}>{role}</div>
       <h2 style={userNameStyle}>Hello, {user.name}! 👋</h2>
       <p style={descriptionStyle}>
-        Your comprehensive quiz management platform. Create engaging quizzes, 
+        Your comprehensive quiz management platform. Create engaging quizzes,
         manage questions, and track performance with our intuitive system.
       </p>
-      
+      <div style={{ margin: '1.5rem 0' }}>
+        <button onClick={showSuccess} style={{ marginRight: 12, background: '#38b000', color: '#fff', border: 'none', borderRadius: 8, padding: '0.5rem 1.2rem', fontWeight: 600, cursor: 'pointer' }}>Show Success</button>
+        <button onClick={showError} style={{ background: '#e63946', color: '#fff', border: 'none', borderRadius: 8, padding: '0.5rem 1.2rem', fontWeight: 600, cursor: 'pointer' }}>Show Error</button>
+      </div>
       <div style={statsContainerStyle}>
         <div style={statCardStyle} className="slide-in">
           <div style={statNumberStyle}>∞</div>
@@ -99,6 +109,9 @@ const Home = () => {
         <div style={statCardStyle} className="slide-in">
           <div style={statNumberStyle}>📊</div>
           <div style={statLabelStyle}>Analytics Dashboard</div>
+          <div style={{ marginTop: '1rem', height: 120, background: 'linear-gradient(90deg, #a1c4fd 0%, #c2e9fb 100%)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3a86ff', fontWeight: 700, fontSize: 24, opacity: 0.7 }}>
+            [Chart Coming Soon]
+          </div>
         </div>
       </div>
     </div>

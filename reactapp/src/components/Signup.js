@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -9,7 +9,18 @@ export default function Signup() {
   const [role, setRole] = useState("USER");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [adminKey, setAdminKey] = useState("");
+  const [mentors, setMentors] = useState([]);
+  const [mentorId, setMentorId] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (role === "USER" || role === "MENTOR") {
+      axios.get("https://quiz-management-platform.onrender.com/api/auth/mentors")
+        .then(res => setMentors(res.data))
+        .catch(() => setMentors([]));
+    }
+  }, [role]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,12 +28,14 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const res = await axios.post("https://quiz-management-platform.onrender.com/api/auth/signup", {
-        name,
-        email,
-        password,
-        role,
-      });
+      const params = {};
+      if (role === "ADMIN") params.adminKey = adminKey;
+      if (role === "USER" && mentorId) params.mentorId = mentorId;
+      const res = await axios.post(
+        "https://quiz-management-platform.onrender.com/api/auth/signup" +
+        (Object.keys(params).length ? `?${new URLSearchParams(params).toString()}` : ""),
+        { name, email, password, role }
+      );
       if (res.data === "Signup successful") {
         navigate("/");
       } else {
@@ -142,8 +155,35 @@ export default function Signup() {
           style={inputStyle}
         >
           <option value="USER">User</option>
+          <option value="MENTOR">Mentor</option>
           <option value="ADMIN">Admin</option>
         </select>
+
+        {/* Admin key input for admin signup */}
+        {role === "ADMIN" && (
+          <input
+            type="password"
+            placeholder="Admin Key"
+            value={adminKey}
+            onChange={e => setAdminKey(e.target.value)}
+            required
+            style={inputStyle}
+          />
+        )}
+
+        {/* Mentor selection for users */}
+        {role === "USER" && mentors.length > 0 && (
+          <select
+            value={mentorId}
+            onChange={e => setMentorId(e.target.value)}
+            style={inputStyle}
+          >
+            <option value="">Select Mentor (optional)</option>
+            {mentors.map(m => (
+              <option key={m.id} value={m.id}>{m.name} ({m.email})</option>
+            ))}
+          </select>
+        )}
 
         <button
           type="submit"

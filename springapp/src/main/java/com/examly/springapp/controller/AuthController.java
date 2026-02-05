@@ -1,7 +1,14 @@
+// ...existing code...
+    // --- GET ALL MENTORS ---
+    @GetMapping("/mentors")
+    public List<User> getAllMentors() {
+        return userRepository.findByRole("MENTOR");
+    }
 package com.examly.springapp.controller;
 
 import com.examly.springapp.model.User;
 import com.examly.springapp.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,14 +22,28 @@ import java.util.Optional;
 
 public class AuthController {
 
+    // Admin key for signup (should be set in application.properties)
+    @Value("${app.admin.key:SECRET_ADMIN_KEY}")
+    private String adminKey;
+
     @Autowired
     private UserRepository userRepository;
 
     // --- SIGNUP ---
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody User user) {
+    public ResponseEntity<String> signup(@RequestBody User user, @RequestParam(value = "adminKey", required = false) String providedAdminKey, @RequestParam(value = "mentorId", required = false) Long mentorId) {
         if (userRepository.existsByEmail(user.getEmail())) {
             return ResponseEntity.badRequest().body("Email already exists");
+        }
+        // Admin signup requires adminKey
+        if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+            if (providedAdminKey == null || !providedAdminKey.equals(adminKey)) {
+                return ResponseEntity.status(403).body("Invalid admin key");
+            }
+        }
+        // Mentor assignment for users
+        if ("USER".equalsIgnoreCase(user.getRole()) && mentorId != null) {
+            userRepository.findById(mentorId).ifPresent(user::setMentor);
         }
         userRepository.save(user);
         return ResponseEntity.ok("Signup successful");

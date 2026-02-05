@@ -6,5 +6,9 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
+
     Optional<User> findByEmail(String email);
+
+    // Find all mentors
+    java.util.List<User> findByRole(String role);
 }

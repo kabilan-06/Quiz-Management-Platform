@@ -24,7 +24,16 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private String role; // "ADMIN" or "USER"
+    private String role; // "ADMIN", "USER", or "MENTOR"
+
+    // For users: the mentor assigned to them (nullable)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mentor_id")
+    private User mentor;
+
+    // For mentors: users assigned to them
+    @OneToMany(mappedBy = "mentor")
+    private java.util.List<User> mentees;
 
     public Long getId() {
         return id;
@@ -64,5 +73,21 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public User getMentor() {
+        return mentor;
+    }
+
+    public void setMentor(User mentor) {
+        this.mentor = mentor;
+    }
+
+    public java.util.List<User> getMentees() {
+        return mentees;
+    }
+
+    public void setMentees(java.util.List<User> mentees) {
+        this.mentees = mentees;
     }
 }
