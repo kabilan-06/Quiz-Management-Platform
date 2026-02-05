@@ -30,6 +30,16 @@ export default function QuizResults() {
     }
   }, [role, quizId]);
 
+  // Always call hooks at the top level
+  const analytics = useMemo(() => {
+    if (!attempts.length) return null;
+    const scores = attempts.map(a => a.score);
+    const best = Math.max(...scores);
+    const worst = Math.min(...scores);
+    const avg = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
+    return { best, worst, avg };
+  }, [attempts]);
+
   if (role !== "USER") return <p>Access denied. Only users can view results.</p>;
 
   if (loading) return <p>Loading...</p>;
@@ -58,16 +68,6 @@ export default function QuizResults() {
       </div>
     );
   }
-
-  // Show attempts for selected quiz
-  const analytics = useMemo(() => {
-    if (!attempts.length) return null;
-    const scores = attempts.map(a => a.score);
-    const best = Math.max(...scores);
-    const worst = Math.min(...scores);
-    const avg = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
-    return { best, worst, avg };
-  }, [attempts]);
 
   if (attempts.length === 0) return (
     <div style={{ padding: "1.5rem" }}>
