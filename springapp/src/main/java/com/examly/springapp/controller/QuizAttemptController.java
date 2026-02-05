@@ -12,11 +12,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/quiz-attempts")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
-
 public class QuizAttemptController {
     private final QuizAttemptService quizAttemptService;
+
+    public QuizAttemptController(QuizAttemptService quizAttemptService) {
+        this.quizAttemptService = quizAttemptService;
+    }
 
     @PostMapping
     public ResponseEntity<QuizAttemptDTO> submitQuizAttempt(
@@ -31,17 +33,19 @@ public class QuizAttemptController {
         List<QuizAttemptDTO> attempts = quizAttemptService.getQuizAttempts(quizId);
         return ResponseEntity.ok(attempts);
     }
+
     @GetMapping
     public ResponseEntity<List<QuizAttemptDTO>> getAllQuizAttempts() {
         List<QuizAttemptDTO> attempts = quizAttemptService.getAllQuizAttempts();
         return ResponseEntity.ok(attempts);
     }
+
     // GET /api/quiz-attempts/{id}
-@GetMapping("/{id}")
-public ResponseEntity<QuizAttemptDTO> getQuizAttemptById(@PathVariable Long id) {
-    QuizAttemptDTO attempt = quizAttemptService.getQuizAttemptById(id);
-    return ResponseEntity.ok(attempt);
-}
+    @GetMapping("/{id}")
+    public ResponseEntity<QuizAttemptDTO> getQuizAttemptById(@PathVariable Long id) {
+        QuizAttemptDTO attempt = quizAttemptService.getQuizAttemptById(id);
+        return ResponseEntity.ok(attempt);
+    }
 
     @GetMapping("/by-quiz-name/{quizName}")
     public ResponseEntity<List<QuizAttemptDTO>> getAttemptsByQuizName(@PathVariable String quizName) {

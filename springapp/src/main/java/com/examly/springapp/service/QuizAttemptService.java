@@ -17,12 +17,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class QuizAttemptService {
-
     private final QuizAttemptRepository quizAttemptRepository;
     private final QuizRepository quizRepository;
     private final OptionRepository optionRepository;
+
+    public QuizAttemptService(QuizAttemptRepository quizAttemptRepository, QuizRepository quizRepository,
+            OptionRepository optionRepository) {
+        this.quizAttemptRepository = quizAttemptRepository;
+        this.quizRepository = quizRepository;
+        this.optionRepository = optionRepository;
+    }
 
     public QuizAttemptDTO submitQuizAttempt(QuizAttemptDTO attemptDTO) {
         Quiz quiz = quizRepository.findById(attemptDTO.getQuizId())
@@ -69,7 +74,7 @@ public class QuizAttemptService {
     public List<QuizAttemptDTO> getAttemptsByQuizName(String quizName) {
         Quiz quiz = quizRepository.findByTitle(quizName)
                 .orElseThrow(() -> new ResourceNotFoundException("Quiz not found with name: " + quizName));
-        
+
         return quizAttemptRepository.findByQuizId(quiz.getId())
                 .stream()
                 .map(this::convertToDTO)
@@ -88,7 +93,8 @@ public class QuizAttemptService {
         for (AnswerDTO answer : attemptDTO.getAnswers()) {
             Option selectedOption = optionRepository.findById(answer.getSelectedOptionId())
                     .orElseThrow(() -> new ResourceNotFoundException("Option not found"));
-            if (selectedOption.isCorrect()) score++;
+            if (selectedOption.isCorrect())
+                score++;
         }
         return score;
     }
