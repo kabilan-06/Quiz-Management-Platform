@@ -1,7 +1,7 @@
 package com.examly.springapp;
 
 import com.examly.springapp.dto.*;
-import com.examly.springapp.model.*;
+// import com.examly.springapp.model.*; // (Unused)
 import com.examly.springapp.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +16,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 
-import java.util.*;
+// import java.util.*; // (Unused)
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,8 +31,8 @@ public class QuizManagementSystemApplicationTests {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    // @Autowired
+    // private ObjectMapper objectMapper; // (Unused)
 
     @Autowired
     private QuizRepository quizRepository;
@@ -82,11 +82,13 @@ public class QuizManagementSystemApplicationTests {
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Java Fundamentals", response.getBody().getTitle());
-        assertEquals("Test your Java knowledge", response.getBody().getDescription());
-        assertEquals(60, response.getBody().getTimeLimit());
-        assertNotNull(response.getBody().getId());
-        assertNotNull(response.getBody().getCreatedAt());
+        QuizDTO body = response.getBody();
+        assertNotNull(body);
+        assertEquals("Java Fundamentals", body.getTitle());
+        assertEquals("Test your Java knowledge", body.getDescription());
+        assertEquals(60, body.getTimeLimit());
+        assertNotNull(body.getId());
+        assertNotNull(body.getCreatedAt());
     }
 
     // Test 2: Create Quiz with Validation Errors
@@ -104,8 +106,10 @@ public class QuizManagementSystemApplicationTests {
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(400, response.getBody().getStatus());
-        assertTrue(response.getBody().getErrors().size() > 0);
+        ErrorResponse errBody = response.getBody();
+        assertNotNull(errBody);
+        assertEquals(400, errBody.getStatus());
+        assertTrue(errBody.getErrors().size() > 0);
     }
 
     // Test 3: Get All Quizzes
@@ -113,5 +117,5 @@ public class QuizManagementSystemApplicationTests {
     @Order(3)
     public void testGetAllQuizzes_Success() {
         // Create test quizzes
-            }
-        }
+    }
+}
