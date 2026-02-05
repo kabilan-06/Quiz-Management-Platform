@@ -2,20 +2,21 @@ package com.examly.springapp.controller;
 
 import com.examly.springapp.dto.QuestionDTO;
 import com.examly.springapp.service.QuestionService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 @RequestMapping("/api/quizzes/{quizId}/questions")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
-
 public class QuestionController {
-    private final QuestionService questionService;
+    @Autowired
+    private QuestionService questionService;
+
+    public QuestionController() {
+    }
 
     @PostMapping
     public ResponseEntity<QuestionDTO> addQuestionToQuiz(
