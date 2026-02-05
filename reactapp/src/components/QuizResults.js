@@ -20,60 +20,60 @@ export default function QuizResults() {
       axios
         .get(`https://quiz-management-platform.onrender.com/api/quiz-attempts/quizzes/${quizId}/attempts`)
         .then((res) => {
-          setAttempts(res.data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error("Failed to fetch quiz results:", err);
-          setLoading(false);
-        });
-    }
-  }, [role, quizId]);
+          useEffect(() => {
+            if (role === "USER" && quizId) {
+              setLoading(true);
+              axios
+                .get(`https://quiz-management-platform.onrender.com/api/quiz-attempts/quizzes/${quizId}/attempts`)
+                .then((res) => {
+                  setAttempts(res.data);
+                  setLoading(false);
+                })
+                .catch((err) => {
+                  console.error("Failed to fetch quiz results:", err);
+                  setLoading(false);
+                });
+            }
+          }, [role, quizId]);
 
-  // Always call hooks at the top level
-  const analytics = useMemo(() => {
-    if (!attempts.length) return null;
-    const scores = attempts.map(a => a.score);
-    const best = Math.max(...scores);
-    const worst = Math.min(...scores);
-    const avg = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
-    return { best, worst, avg };
-  }, [attempts]);
+          // Always call hooks at the top level
+          const analytics = useMemo(() => {
+            if (!attempts.length) return null;
+            const scores = attempts.map(a => a.score);
+            const best = Math.max(...scores);
+            const worst = Math.min(...scores);
+            const avg = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
+            return { best, worst, avg };
+          }, [attempts]);
 
-  if (role !== "USER") return <p>Access denied. Only users can view results.</p>;
+          if (role !== "USER") return <p>Access denied. Only users can view results.</p>;
 
-  if (loading) return <p>Loading...</p>;
+          if (loading) return <p>Loading...</p>;
 
-  // Show quiz list if no quizId
-  if (!quizId) {
-    return (
-      <div style={{ padding: "1.5rem" }}>
-        <h2>All Quizzes</h2>
-        {quizzes.length === 0 && <p>No quizzes found.</p>}
-        {quizzes.map((quiz) => (
-          <div
-            key={quiz.id}
-            style={{
-              padding: "0.5rem",
-              border: "1px solid #ddd",
-              marginBottom: "0.5rem",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
-            onClick={() => navigate(`/results/${quiz.id}`)}
-          >
-            {quiz.title || `Quiz #${quiz.id}`}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (attempts.length === 0) return (
-    <div style={{ padding: "1.5rem" }}>
-      <h2>Quiz Results</h2>
-      <p>No results found for this quiz.</p>
-      <Leaderboard quizId={quizId} />
+          // Show quiz list if no quizId
+          if (!quizId) {
+            return (
+              <div style={{ padding: "1.5rem" }}>
+                <h2>All Quizzes</h2>
+                {quizzes.length === 0 && <p>No quizzes found.</p>}
+                {quizzes.map((quiz) => (
+                  <div
+                    key={quiz.id}
+                    style={{
+                      padding: "0.5rem",
+                      border: "1px solid #ddd",
+                      marginBottom: "0.5rem",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => navigate(`/results/${quiz.id}`)}
+                  >
+                    {quiz.title || `Quiz #${quiz.id}`}
+                  </div>
+                ))}
+              </div>
+            );
+          }
     </div>
   );
 
