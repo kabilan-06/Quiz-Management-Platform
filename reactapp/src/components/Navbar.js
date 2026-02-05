@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
@@ -62,13 +62,29 @@ const Navbar = () => {
     marginLeft: '1rem'
   };
 
+  // Accessibility toggles
+  const [dark, setDark] = useState(() => document.body.classList.contains('dark-mode'));
+  const [fontSize, setFontSize] = useState('medium');
+
+  const handleDarkToggle = () => {
+    setDark((prev) => {
+      document.body.classList.toggle('dark-mode', !prev);
+      return !prev;
+    });
+  };
+  const handleFontSize = (size) => {
+    setFontSize(size);
+    document.body.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
+    document.body.classList.add(`font-size-${size}`);
+  };
+
   return (
     <nav style={navStyle} className="slide-in">
       <Link to="/home" style={brandStyle}>
         QuizMaster Pro
       </Link>
 
-      <div style={navLinksStyle}>
+      <div style={{ ...navLinksStyle, gap: '1.5rem' }}>
         <Link
           to="/home"
           style={location.pathname === '/home' ? activeLinkStyle : linkStyle}
@@ -124,6 +140,18 @@ const Navbar = () => {
         >
           Logout
         </Link>
+
+        {/* Accessibility toggles */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 16 }}>
+          <button onClick={handleDarkToggle} style={{ ...linkStyle, background: dark ? '#23272f' : '#e0e7ef', color: dark ? '#fff' : '#222', fontWeight: 700 }}>
+            {dark ? '☀️ Light' : '🌙 Dark'}
+          </button>
+          <select value={fontSize} onChange={e => handleFontSize(e.target.value)} style={{ ...linkStyle, padding: '0.5rem 1rem', fontWeight: 700 }}>
+            <option value="small">A-</option>
+            <option value="medium">A</option>
+            <option value="large">A+</option>
+          </select>
+        </div>
       </div>
     </nav>
   );

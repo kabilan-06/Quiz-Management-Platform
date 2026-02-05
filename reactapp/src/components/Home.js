@@ -2,8 +2,13 @@ import React, { useState } from 'react';
 import Notification from './Notification';
 
 const Home = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const role = localStorage.getItem("role");
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("user"));
+  } catch (e) {
+    user = null;
+  }
+  const role = user?.role || localStorage.getItem("role") || "USER";
 
   const containerStyle = {
     textAlign: 'center',
@@ -83,16 +88,39 @@ const Home = () => {
   const showSuccess = () => setNotif({ message: 'Welcome back! 🎉', type: 'success' });
   const showError = () => setNotif({ message: 'Something went wrong!', type: 'error' });
 
+  const avatarStyle = {
+    width: 64,
+    height: 64,
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 32,
+    color: '#fff',
+    marginBottom: 16,
+    boxShadow: '0 2px 8px #c2e9fb',
+  };
+
+  const displayName = user?.name || 'Guest';
+  const displayRole = role ? role.charAt(0).toUpperCase() + role.slice(1).toLowerCase() : 'User';
+
   return (
     <div style={containerStyle} className="fade-in">
       <Notification message={notif.message} type={notif.type} onClose={() => setNotif({ message: '', type: 'info' })} />
       <h1 style={welcomeStyle}>Welcome to QuizMaster Pro</h1>
-      <div style={roleStyle}>{role}</div>
-      <h2 style={userNameStyle}>Hello, {user.name}! 👋</h2>
+      <div style={roleStyle}>{displayRole}</div>
+      <div style={avatarStyle}>{displayName[0]}</div>
+      <h2 style={userNameStyle}>Hello, {displayName}! 👋</h2>
       <p style={descriptionStyle}>
         Your comprehensive quiz management platform. Create engaging quizzes,
         manage questions, and track performance with our intuitive system.
       </p>
+      {!user && (
+        <div style={{ margin: '1.5rem 0', color: '#e63946', fontWeight: 600 }}>
+          You are not logged in. Please <a href="/" style={{ color: '#3a86ff', textDecoration: 'underline' }}>login</a> to access all features.
+        </div>
+      )}
       <div style={{ margin: '1.5rem 0' }}>
         <button onClick={showSuccess} style={{ marginRight: 12, background: '#38b000', color: '#fff', border: 'none', borderRadius: 8, padding: '0.5rem 1.2rem', fontWeight: 600, cursor: 'pointer' }}>Show Success</button>
         <button onClick={showError} style={{ background: '#e63946', color: '#fff', border: 'none', borderRadius: 8, padding: '0.5rem 1.2rem', fontWeight: 600, cursor: 'pointer' }}>Show Error</button>
@@ -114,6 +142,22 @@ const Home = () => {
           </div>
         </div>
       </div>
+      {user && (
+        <div style={{ marginTop: 32, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+          <div>
+            <a href="/take-quiz" style={{ background: '#3a86ff', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, textDecoration: 'none', marginRight: 16 }}>Start a Quiz</a>
+            <a href="/results" style={{ background: '#38b000', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, textDecoration: 'none' }}>View Results</a>
+          </div>
+          <div>
+            <a href="/flashcards" style={{ background: '#ffb300', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, textDecoration: 'none', marginRight: 16 }}>Study Flashcards</a>
+            <a href="/team-quiz" style={{ background: '#8e24aa', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, textDecoration: 'none' }}>Team Quiz</a>
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <a href="#onboarding" style={{ color: '#3a86ff', textDecoration: 'underline', fontWeight: 600, marginRight: 16 }}>Show Tutorial</a>
+            <a href="#profile" style={{ color: '#e63946', textDecoration: 'underline', fontWeight: 600 }}>Edit Profile</a>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

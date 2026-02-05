@@ -1,3 +1,41 @@
+/* Accessibility: Dark Mode */
+body.dark-mode {
+  background: #181a1b;
+  color: #f1f1f1;
+}
+
+.dark-mode .card {
+  background: #23272f;
+  color: #f1f1f1;
+  border: 1px solid #333;
+}
+
+.dark-mode .btn-primary,
+.dark-mode .btn-secondary {
+  filter: brightness(0.9);
+}
+
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+  background: #23272f;
+  color: #f1f1f1;
+  border: 1px solid #333;
+}
+
+/* Accessibility: Font Size Options */
+.font-size-small {
+  font-size: 14px !important;
+}
+
+.font-size-medium {
+  font-size: 18px !important;
+}
+
+.font-size-large {
+  font-size: 22px !important;
+}
+
 /* Professional App Styles */
 .app {
   max-width: 1200px;
@@ -254,8 +292,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Empty States */
@@ -277,15 +320,15 @@
   .quiz-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .card {
     padding: 1.5rem;
   }
-  
+
   .btn-primary,
   .btn-secondary,
   .btn-outline {
@@ -298,7 +341,7 @@
   .app {
     padding: 1rem;
   }
-  
+
   .card {
     padding: 1rem;
   }

@@ -1,5 +1,7 @@
 // src/components/QuizResults.js
 import React, { useEffect, useState } from "react";
+import Leaderboard from "./Leaderboard";
+import { useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -58,34 +60,68 @@ export default function QuizResults() {
   }
 
   // Show attempts for selected quiz
-  if (attempts.length === 0) return <p>No results found for this quiz.</p>;
+  const analytics = useMemo(() => {
+    if (!attempts.length) return null;
+    const scores = attempts.map(a => a.score);
+    const best = Math.max(...scores);
+    const worst = Math.min(...scores);
+    const avg = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
+    return { best, worst, avg };
+  }, [attempts]);
+
+  if (attempts.length === 0) return (
+    <div style={{ padding: "1.5rem" }}>
+      <h2>Quiz Results</h2>
+      <p>No results found for this quiz.</p>
+      <Leaderboard quizId={quizId} />
+    </div>
+  );
+
+  const handleExport = () => {
+    const csv = [
+      ["Student", "Score", "Total Questions", "Completed At"],
+      ...attempts.map(a => [a.studentName, a.score, a.totalQuestions, a.completedAt])
+    ].map(row => row.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `quiz_results_${quizId}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div style={{ padding: "1.5rem" }}>
       <h2>Quiz Results</h2>
-      {attempts.map((attempt) => {
-        // Safe access: check if username exists directly or inside user object
-        // const username = attempt.username || attempt.user?.username || "Unknown Student"; // Removed unused variable
-
-        return (
-          <div
-            key={attempt.id}
-            style={{
-              marginBottom: "1rem",
-              padding: "0.5rem",
-              border: "1px solid #ddd",
-              borderRadius: "6px",
-            }}
-          >
-            <p>
-              <strong>Student:</strong> {user.name}
-            </p>
-            <p>
-              <strong>Score:</strong> {attempt.score} / {attempt.totalQuestions}
-            </p>
-          </div>
-        );
-      })}
+      <button onClick={handleExport} style={{ marginBottom: 16, background: '#2193b0', color: '#fff', border: 'none', borderRadius: 8, padding: '0.5rem 1.2rem', fontWeight: 600, cursor: 'pointer' }}>Export CSV</button>
+      {analytics && (
+        <div style={{ marginBottom: 16, background: '#f1f8e9', padding: 12, borderRadius: 8 }}>
+          <b>Analytics:</b> Avg Score: {analytics.avg} | Best: {analytics.best} | Worst: {analytics.worst}
+        </div>
+      )}
+      {attempts.map((attempt) => (
+        <div
+          key={attempt.id}
+          style={{
+            marginBottom: "1rem",
+            padding: "0.5rem",
+            border: "1px solid #ddd",
+            borderRadius: "6px",
+          }}
+        >
+          <p>
+            <strong>Student:</strong> {attempt.studentName || user.name}
+          </p>
+          <p>
+            <strong>Score:</strong> {attempt.score} / {attempt.totalQuestions}
+          </p>
+          <p>
+            <strong>Completed At:</strong> {attempt.completedAt ? new Date(attempt.completedAt).toLocaleString() : "-"}
+          </p>
+        </div>
+      ))}
+      <Leaderboard quizId={quizId} />
     </div>
   );
 }

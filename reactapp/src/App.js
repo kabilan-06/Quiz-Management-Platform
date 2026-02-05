@@ -9,6 +9,8 @@ import QuizResults from './components/QuizResults';
 import AttendQuiz from './components/AttendQuiz';
 import Results from './components/Results';
 import { getQuizzes } from './utils/api';
+import TeamQuiz from './components/TeamQuiz';
+import Flashcards from './components/Flashcards';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import MentorDashboard from './components/MentorDashboard';
@@ -62,6 +64,8 @@ function AppContent({ quizzes }) {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/team-quiz" element={<TeamQuiz quizzes={quizzes} />} />
+            <Route path="/flashcards" element={<Flashcards />} />
           </Routes>
         </div>
       </div>
