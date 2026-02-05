@@ -12,7 +12,7 @@ export default function QuizResults() {
   useEffect(() => {
     async function fetchResult() {
       try {
-        const res = await axios.get(`http://localhost:8080/api/quiz-attempts/${id}`);
+        const res = await axios.get(`https://quiz-management-platform.onrender.com/api/quiz-attempts/${id}`);
         setResult(res.data);
       } catch (err) {
         console.error(err);

@@ -20,7 +20,7 @@ export default function AttendQuiz() {
 
     setLoading(true);
     axios
-      .get(`http://localhost:8080/api/quizzes/${quizId}/questions/get`)
+      .get(`https://quiz-management-platform.onrender.com/api/quizzes/${quizId}/questions/get`)
       .then((res) => {
         setQuestions(res.data);
         setLoading(false);
@@ -66,7 +66,7 @@ export default function AttendQuiz() {
     try {
       setSubmitting(true);
       await axios.post(
-        "http://localhost:8080/api/quiz-attempts",
+        "https://quiz-management-platform.onrender.com/api/quiz-attempts",
         payload
       );
       alert("Quiz submitted successfully!"); // ✅ Alert success

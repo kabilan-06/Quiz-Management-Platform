@@ -39,7 +39,7 @@ export default function TakeQuizPage() {
       }))
     };
 
-    axios.post("http://localhost:8080/api/quizAttempts", payload)
+    axios.post("https://quiz-management-platform.onrender.com/api/quizAttempts", payload)
       .then(res => {
         setResult(res.data);
         setSubmitted(true);

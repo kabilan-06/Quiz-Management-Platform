@@ -16,7 +16,7 @@ export default function QuizResults() {
     if (role === "USER" && quizId) {
       setLoading(true);
       axios
-        .get(`http://localhost:8080/api/quiz-attempts/quizzes/${quizId}/attempts`)
+        .get(`https://quiz-management-platform.onrender.com/api/quiz-attempts/quizzes/${quizId}/attempts`)
         .then((res) => {
           setAttempts(res.data);
           setLoading(false);

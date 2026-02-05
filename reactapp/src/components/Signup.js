@@ -15,9 +15,9 @@ export default function Signup() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    
+
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/signup", {
+      const res = await axios.post("https://quiz-management-platform.onrender.com/api/auth/signup", {
         name,
         email,
         password,

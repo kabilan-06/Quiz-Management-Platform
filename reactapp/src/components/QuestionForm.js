@@ -47,7 +47,7 @@ const QuestionForm = ({ quizzes }) => {
     try {
       const payload = { questionText, questionType, options };
       await axios.post(
-        `http://localhost:8080/api/quizzes/${quizId}/questions`,
+        `https://quiz-management-platform.onrender.com/api/quizzes/${quizId}/questions`,
         payload
       );
       setMessage({ text: "Question added successfully!", type: "success" });
@@ -171,13 +171,13 @@ const QuestionForm = ({ quizzes }) => {
         <h2 style={titleStyle}>Add Question</h2>
         <p style={subtitleStyle}>Create engaging questions for your quiz</p>
       </div>
-      
+
       {message.text && (
         <div className={message.type === "error" ? "error" : "success"} style={{ marginBottom: '1.5rem' }}>
           {message.text}
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit} style={formStyle}>
         <div>
           <label style={labelStyle}>Select Quiz</label>
