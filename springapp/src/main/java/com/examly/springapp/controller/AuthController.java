@@ -1,10 +1,7 @@
-// ...existing code...
-    // --- GET ALL MENTORS ---
-    @GetMapping("/mentors")
-    public List<User> getAllMentors() {
-        return userRepository.findByRole("MENTOR");
-    }
+
 package com.examly.springapp.controller;
+// --- GET ALL MENTORS ---
+@GetMapping("/mentors")public List<User>getAllMentors(){return userRepository.findByRole("MENTOR");}
 
 import com.examly.springapp.model.User;
 import com.examly.springapp.repository.UserRepository;
@@ -31,7 +28,9 @@ public class AuthController {
 
     // --- SIGNUP ---
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody User user, @RequestParam(value = "adminKey", required = false) String providedAdminKey, @RequestParam(value = "mentorId", required = false) Long mentorId) {
+    public ResponseEntity<String> signup(@RequestBody User user,
+            @RequestParam(value = "adminKey", required = false) String providedAdminKey,
+            @RequestParam(value = "mentorId", required = false) Long mentorId) {
         if (userRepository.existsByEmail(user.getEmail())) {
             return ResponseEntity.badRequest().body("Email already exists");
         }
@@ -51,24 +50,24 @@ public class AuthController {
 
     // --- LOGIN ---
     @PostMapping("/login")
-public ResponseEntity<?> login(@RequestBody User loginRequest) {
-    return userRepository.findByEmail(loginRequest.getEmail())
-            .map(user -> {
-                // ⚡ If password is plain text (not encoded):
-                if (user.getPassword().equals(loginRequest.getPassword())) {
-                    return ResponseEntity.ok(user);
-                }
+    public ResponseEntity<?> login(@RequestBody User loginRequest) {
+        return userRepository.findByEmail(loginRequest.getEmail())
+                .map(user -> {
+                    // ⚡ If password is plain text (not encoded):
+                    if (user.getPassword().equals(loginRequest.getPassword())) {
+                        return ResponseEntity.ok(user);
+                    }
 
-                // ⚡ If you are using PasswordEncoder:
-                // if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                //     return ResponseEntity.ok(user);
-                // }
+                    // ⚡ If you are using PasswordEncoder:
+                    // if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()))
+                    // {
+                    // return ResponseEntity.ok(user);
+                    // }
 
-                return ResponseEntity.status(401).body("Invalid credentials");
-            })
-            .orElseGet(() -> ResponseEntity.status(404).body("User not found"));
-}
-
+                    return ResponseEntity.status(401).body("Invalid credentials");
+                })
+                .orElseGet(() -> ResponseEntity.status(404).body("User not found"));
+    }
 
     // --- GET ALL USERS ---
     @GetMapping("/users")
@@ -77,11 +76,11 @@ public ResponseEntity<?> login(@RequestBody User loginRequest) {
     }
 
     // --- GET USER BY EMAIL ---
-   @GetMapping("/user")
-public ResponseEntity<?> getUserByEmail(@RequestParam String email) {
-    return userRepository.findByEmail(email)
-            .<ResponseEntity<?>>map(ResponseEntity::ok)
-            .orElseGet(() -> ResponseEntity.status(404).body("User not found"));
-}
+    @GetMapping("/user")
+    public ResponseEntity<?> getUserByEmail(@RequestParam String email) {
+        return userRepository.findByEmail(email)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(404).body("User not found"));
+    }
 
 }
