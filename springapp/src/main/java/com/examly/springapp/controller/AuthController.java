@@ -1,7 +1,5 @@
 
 package com.examly.springapp.controller;
-// --- GET ALL MENTORS ---
-@GetMapping("/mentors")public List<User>getAllMentors(){return userRepository.findByRole("MENTOR");}
 
 import com.examly.springapp.model.User;
 import com.examly.springapp.repository.UserRepository;
@@ -81,6 +79,12 @@ public class AuthController {
         return userRepository.findByEmail(email)
                 .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(404).body("User not found"));
+    }
+
+    // --- GET ALL MENTORS ---
+    @GetMapping("/mentors")
+    public List<User> getAllMentors() {
+        return userRepository.findByRole("MENTOR");
     }
 
 }
