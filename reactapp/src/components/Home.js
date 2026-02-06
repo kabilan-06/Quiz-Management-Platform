@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import Notification from './Notification';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
+  const navigate = useNavigate();
   let user = null;
   try {
     user = JSON.parse(localStorage.getItem("user"));
@@ -143,19 +145,13 @@ const Home = () => {
         </div>
       </div>
       {user && (
-        <div style={{ marginTop: 32, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-          <div>
-            <a href="/take-quiz" style={{ background: '#3a86ff', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, textDecoration: 'none', marginRight: 16 }}>Start a Quiz</a>
-            <a href="/results" style={{ background: '#38b000', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, textDecoration: 'none' }}>View Results</a>
-          </div>
-          <div>
-            <a href="/flashcards" style={{ background: '#ffb300', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, textDecoration: 'none', marginRight: 16 }}>Study Flashcards</a>
-            <a href="/team-quiz" style={{ background: '#8e24aa', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, textDecoration: 'none' }}>Team Quiz</a>
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <a href="#onboarding" style={{ color: '#3a86ff', textDecoration: 'underline', fontWeight: 600, marginRight: 16 }}>Show Tutorial</a>
-            <a href="#profile" style={{ color: '#e63946', textDecoration: 'underline', fontWeight: 600 }}>Edit Profile</a>
-          </div>
+        <div style={{ marginTop: 32, display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 16 }}>
+          <button onClick={() => navigate('/take-quiz')} style={{ background: '#3a86ff', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Start a Quiz</button>
+          <button onClick={() => navigate('/results')} style={{ background: '#38b000', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>View Results</button>
+          <button onClick={() => navigate('/flashcards')} style={{ background: '#ffb300', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Study Flashcards</button>
+          <button onClick={() => navigate('/team-quiz')} style={{ background: '#8e24aa', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Team Quiz</button>
+          <button onClick={() => alert('Tutorial coming soon!')} style={{ background: '#3a86ff', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Show Tutorial</button>
+          <button onClick={() => navigate('/profile')} style={{ background: '#e63946', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Edit Profile</button>
         </div>
       )}
     </div>
