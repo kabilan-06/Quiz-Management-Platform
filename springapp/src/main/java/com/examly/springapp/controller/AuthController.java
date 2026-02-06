@@ -3,6 +3,7 @@ package com.examly.springapp.controller;
 
 import com.examly.springapp.model.User;
 import com.examly.springapp.repository.UserRepository;
+import com.examly.springapp.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -51,17 +52,9 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody User loginRequest) {
         return userRepository.findByEmail(loginRequest.getEmail())
                 .map(user -> {
-                    // ⚡ If password is plain text (not encoded):
                     if (user.getPassword().equals(loginRequest.getPassword())) {
-                        return ResponseEntity.ok(user);
+                        return ResponseEntity.ok(new UserDTO(user.getId(), user.getName(), user.getRole()));
                     }
-
-                    // ⚡ If you are using PasswordEncoder:
-                    // if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()))
-                    // {
-                    // return ResponseEntity.ok(user);
-                    // }
-
                     return ResponseEntity.status(401).body("Invalid credentials");
                 })
                 .orElseGet(() -> ResponseEntity.status(404).body("User not found"));
@@ -69,22 +62,26 @@ public class AuthController {
 
     // --- GET ALL USERS ---
     @GetMapping("/users")
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(u -> new UserDTO(u.getId(), u.getName(), u.getRole()))
+                .toList();
     }
 
     // --- GET USER BY EMAIL ---
     @GetMapping("/user")
     public ResponseEntity<?> getUserByEmail(@RequestParam String email) {
         return userRepository.findByEmail(email)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .map(u -> ResponseEntity.ok(new UserDTO(u.getId(), u.getName(), u.getRole())))
                 .orElseGet(() -> ResponseEntity.status(404).body("User not found"));
     }
 
     // --- GET ALL MENTORS ---
     @GetMapping("/mentors")
-    public List<User> getAllMentors() {
-        return userRepository.findByRole("MENTOR");
+    public List<UserDTO> getAllMentors() {
+        return userRepository.findByRole("MENTOR").stream()
+                .map(u -> new UserDTO(u.getId(), u.getName(), u.getRole()))
+                .toList();
     }
 
 }
