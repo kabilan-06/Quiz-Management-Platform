@@ -73,7 +73,7 @@ export default function MentorDashboard() {
                 </div>
             )}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem" }}>
-                {mentees.map((mentee) => (
+                {(Array.isArray(mentees) ? mentees : []).map((mentee) => (
                     <div
                         key={mentee.id}
                         style={{
@@ -116,7 +116,7 @@ function MenteeResults({ userId }) {
         <div style={{ marginTop: "1rem" }}>
             <h4 style={{ color: "#3a86ff", fontSize: "1.1rem", marginBottom: "0.5rem" }}>Quiz Results</h4>
             <ul style={{ paddingLeft: 0, listStyle: "none" }}>
-                {results.map((r) => (
+                {(Array.isArray(results) ? results : []).map((r) => (
                     <li key={r.id} style={{ marginBottom: "0.5rem", color: "#222" }}>
                         <b>{r.quizTitle || "Quiz"}:</b> {r.score} / {r.totalQuestions}
                     </li>
