@@ -179,7 +179,7 @@ export default function Signup() {
             style={inputStyle}
           >
             <option value="">Select Mentor (optional)</option>
-            {mentors.map(m => (
+            {Array.isArray(mentors) && mentors.map(m => (
               <option key={m.id} value={m.id}>{m.name} ({m.email})</option>
             ))}
           </select>
