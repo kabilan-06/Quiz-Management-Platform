@@ -50,7 +50,7 @@ export default function MentorDashboard() {
                 <div style={{ marginBottom: 32, textAlign: 'center' }}>
                     <div style={avatarStyle}>{mentor.name ? mentor.name[0] : 'M'}</div>
                     <div style={{ fontWeight: 700, fontSize: 20 }}>{mentor.name || 'Mentor'}</div>
-                    <div style={{ color: '#555', fontSize: 16 }}>{mentor.email}</div>
+                    <div style={{ color: '#555', fontSize: 16 }}>ID: {mentor.id}</div>
                 </div>
             )}
             {loading && <p>Loading mentees...</p>}
@@ -86,7 +86,7 @@ export default function MentorDashboard() {
                         }}
                     >
                         <h3 style={{ color: "#3a86ff", marginBottom: "0.5rem" }}>{mentee.name}</h3>
-                        <p style={{ color: "#555", marginBottom: "0.5rem" }}>{mentee.email}</p>
+                        <div style={{ color: "#555", marginBottom: "0.5rem" }}>ID: {mentee.id}</div>
                         <MenteeResults userId={mentee.id} />
                     </div>
                 ))}

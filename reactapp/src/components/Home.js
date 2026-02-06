@@ -123,10 +123,7 @@ const Home = () => {
           You are not logged in. Please <a href="/" style={{ color: '#3a86ff', textDecoration: 'underline' }}>login</a> to access all features.
         </div>
       )}
-      <div style={{ margin: '1.5rem 0' }}>
-        <button onClick={showSuccess} style={{ marginRight: 12, background: '#38b000', color: '#fff', border: 'none', borderRadius: 8, padding: '0.5rem 1.2rem', fontWeight: 600, cursor: 'pointer' }}>Show Success</button>
-        <button onClick={showError} style={{ background: '#e63946', color: '#fff', border: 'none', borderRadius: 8, padding: '0.5rem 1.2rem', fontWeight: 600, cursor: 'pointer' }}>Show Error</button>
-      </div>
+      {/* Removed demo notification buttons for cleaner UI */}
       <div style={statsContainerStyle}>
         <div style={statCardStyle} className="slide-in">
           <div style={statNumberStyle}>∞</div>
