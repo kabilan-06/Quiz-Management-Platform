@@ -72,8 +72,8 @@ public class AuthController {
     @GetMapping("/user")
     public ResponseEntity<?> getUserByEmail(@RequestParam String email) {
         return userRepository.findByEmail(email)
-                .map(u -> ResponseEntity.ok(new UserDTO(u.getId(), u.getName(), u.getRole())))
-                .orElseGet(() -> ResponseEntity.status(404).body("User not found"));
+            .map(u -> ResponseEntity.ok(new UserDTO(u.getId(), u.getName(), u.getRole())))
+            .orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
     // --- GET ALL MENTORS ---
