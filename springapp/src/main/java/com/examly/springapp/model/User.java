@@ -2,6 +2,8 @@ package com.examly.springapp.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "users")
@@ -27,12 +29,15 @@ public class User {
     private String role; // "ADMIN", "USER", or "MENTOR"
 
     // For users: the mentor assigned to them (nullable)
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mentor_id")
+    @JsonBackReference
     private User mentor;
 
     // For mentors: users assigned to them
     @OneToMany(mappedBy = "mentor")
+    @JsonManagedReference
     private java.util.List<User> mentees;
 
     public Long getId() {
