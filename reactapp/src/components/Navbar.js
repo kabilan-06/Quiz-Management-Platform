@@ -1,9 +1,20 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Navbar = () => {
   const location = useLocation();
   const role = localStorage.getItem("role");
+  const { isDark, toggleTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
+  const [fontSize, setFontSize] = useState('medium');
+
+  const handleFontSize = (size) => {
+    setFontSize(size);
+    document.body.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
+    document.body.classList.add(`font-size-${size}`);
+  };
 
   const navStyle = {
     position: 'fixed',
@@ -63,22 +74,6 @@ const Navbar = () => {
     marginLeft: '0.5rem'
   };
 
-  // Accessibility toggles
-  const [dark, setDark] = useState(() => document.body.classList.contains('dark-mode'));
-  const [fontSize, setFontSize] = useState('medium');
-
-  const handleDarkToggle = () => {
-    setDark((prev) => {
-      document.body.classList.toggle('dark-mode', !prev);
-      return !prev;
-    });
-  };
-  const handleFontSize = (size) => {
-    setFontSize(size);
-    document.body.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
-    document.body.classList.add(`font-size-${size}`);
-  };
-
   return (
     <nav style={navStyle} className="slide-in">
       <Link to="/home" style={brandStyle}>
@@ -90,14 +85,14 @@ const Navbar = () => {
           to="/home"
           style={location.pathname === '/home' ? activeLinkStyle : linkStyle}
         >
-          Dashboard
+          {t('dashboard')}
         </Link>
         {role === "MENTOR" && (
           <Link
             to="/mentor-dashboard"
             style={location.pathname === '/mentor-dashboard' ? activeLinkStyle : linkStyle}
           >
-            Mentor Dashboard
+            {t('mentorDashboard')}
           </Link>
         )}
 
@@ -124,13 +119,13 @@ const Navbar = () => {
               to="/take-quiz"
               style={location.pathname === '/take-quiz' ? activeLinkStyle : linkStyle}
             >
-              Start Quiz
+              {t('startQuiz')}
             </Link>
             <Link
               to="/results"
               style={location.pathname === '/results' ? activeLinkStyle : linkStyle}
             >
-              Results
+              {t('viewResults')}
             </Link>
           </>
         )}
@@ -139,18 +134,17 @@ const Navbar = () => {
           to="/"
           style={logoutStyle}
         >
-          Logout
+          {t('logout')}
         </Link>
 
-        {/* Accessibility toggles */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: '1rem' }}>
           <button 
-            onClick={handleDarkToggle} 
+            onClick={toggleTheme} 
             style={{ 
               ...linkStyle, 
-              background: dark ? '#2d3748' : '#f7fafc', 
-              color: dark ? '#fff' : '#2d3748',
-              border: '1px solid ' + (dark ? '#4a5568' : '#e2e8f0'),
+              background: isDark ? '#2d3748' : '#f7fafc', 
+              color: isDark ? '#fff' : '#2d3748',
+              border: '1px solid ' + (isDark ? '#4a5568' : '#e2e8f0'),
               padding: '0.5rem 0.875rem',
               fontSize: '0.85rem',
               display: 'flex',
@@ -158,8 +152,25 @@ const Navbar = () => {
               gap: '0.375rem'
             }}
           >
-            <span>{dark ? '☀️' : '🌙'}</span>
+            <span>{isDark ? '☀️' : '🌙'}</span>
           </button>
+          <select 
+            value={language} 
+            onChange={e => setLanguage(e.target.value)} 
+            style={{ 
+              ...linkStyle, 
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.85rem',
+              border: '1px solid #e2e8f0',
+              background: '#f7fafc',
+              color: '#2d3748',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="en">EN</option>
+            <option value="es">ES</option>
+            <option value="fr">FR</option>
+          </select>
           <select 
             value={fontSize} 
             onChange={e => handleFontSize(e.target.value)} 

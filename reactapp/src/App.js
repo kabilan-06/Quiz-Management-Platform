@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
 import QuizForm from './components/QuizForm';
@@ -31,9 +33,13 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <AppContent quizzes={quizzes} />
-    </Router>
+    <ThemeProvider>
+      <LanguageProvider>
+        <Router>
+          <AppContent quizzes={quizzes} />
+        </Router>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 
