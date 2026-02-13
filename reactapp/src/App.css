@@ -1,26 +1,35 @@
 /* Accessibility: Dark Mode */
 body.dark-mode {
-  background: #181a1b;
-  color: #f1f1f1;
+  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  color: #f7fafc;
 }
 
 .dark-mode .card {
-  background: #23272f;
-  color: #f1f1f1;
-  border: 1px solid #333;
+  background: #2d3748;
+  color: #f7fafc;
+  border: 1px solid #4a5568;
 }
 
 .dark-mode .btn-primary,
 .dark-mode .btn-secondary {
-  filter: brightness(0.9);
+  filter: brightness(1.1);
 }
 
 .dark-mode input,
 .dark-mode textarea,
 .dark-mode select {
-  background: #23272f;
-  color: #f1f1f1;
-  border: 1px solid #333;
+  background: #2d3748;
+  color: #f7fafc;
+  border: 1px solid #4a5568;
+}
+
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode h5,
+.dark-mode h6 {
+  color: #e2e8f0;
 }
 
 /* Accessibility: Font Size Options */
@@ -45,31 +54,30 @@ body.dark-mode {
 
 /* Card Components */
 .card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: var(--transition);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
 }
 
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 }
 
 /* Professional Buttons */
 .btn-primary {
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   padding: 0.875rem 2rem;
-  border-radius: var(--border-radius);
+  border-radius: 12px;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
   letter-spacing: 0.025em;
 }
@@ -80,15 +88,15 @@ body.dark-mode {
 }
 
 .btn-secondary {
-  background: var(--gradient-secondary);
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   color: white;
   border: none;
   padding: 0.875rem 2rem;
-  border-radius: var(--border-radius);
+  border-radius: 12px;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
   letter-spacing: 0.025em;
 }
@@ -100,18 +108,18 @@ body.dark-mode {
 
 .btn-outline {
   background: transparent;
-  color: var(--accent-color);
-  border: 2px solid var(--accent-color);
+  color: #667eea;
+  border: 2px solid #667eea;
   padding: 0.875rem 2rem;
-  border-radius: var(--border-radius);
+  border-radius: 12px;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
 }
 
 .btn-outline:hover {
-  background: var(--accent-color);
+  background: #667eea;
   color: white;
   transform: translateY(-2px);
 }
@@ -133,17 +141,17 @@ body.dark-mode {
   width: 100%;
   padding: 1rem;
   border: 2px solid #e2e8f0;
-  border-radius: var(--border-radius);
+  border-radius: 12px;
   font-size: 1rem;
-  transition: var(--transition);
+  transition: all 0.2s ease;
   background: white;
   font-family: inherit;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .form-textarea {
@@ -164,24 +172,23 @@ body.dark-mode {
 }
 
 .quiz-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
+  background: white;
   padding: 2rem;
-  border-radius: var(--border-radius);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  transition: var(--transition);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .quiz-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 }
 
 .quiz-card.selected {
-  border: 2px solid var(--accent-color);
-  box-shadow: 0 8px 32px rgba(49, 130, 206, 0.2);
+  border: 2px solid #667eea;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
 }
 
 .quiz-title {
@@ -203,7 +210,7 @@ body.dark-mode {
   justify-content: space-between;
   align-items: center;
   font-size: 0.9rem;
-  color: var(--accent-color);
+  color: #667eea;
   font-weight: 500;
 }
 
@@ -216,29 +223,32 @@ body.dark-mode {
 }
 
 .stat-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
+  background: white;
   padding: 2rem;
-  border-radius: var(--border-radius);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   text-align: center;
-  transition: var(--transition);
+  transition: all 0.3s ease;
 }
 
 .stat-card:hover {
   transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 }
 
 .stat-number {
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--accent-color);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
   margin-bottom: 0.5rem;
 }
 
 .stat-label {
-  color: var(--secondary-color);
+  color: #4a5568;
   font-weight: 500;
   font-size: 0.95rem;
 }

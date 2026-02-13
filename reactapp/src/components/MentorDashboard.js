@@ -12,6 +12,7 @@ export default function MentorDashboard() {
     const [mentees, setMentees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
         if (!mentor || mentor.role !== "MENTOR") return;
@@ -28,65 +29,145 @@ export default function MentorDashboard() {
     }, [mentor]);
 
     const avatarStyle = {
-        width: 72,
-        height: 72,
+        width: 56,
+        height: 56,
         borderRadius: '50%',
-        background: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: 36,
+        fontSize: 24,
+        fontWeight: '600',
         color: '#fff',
-        marginBottom: 16,
-        boxShadow: '0 2px 8px #c2e9fb',
+        marginBottom: 12,
+        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.25)',
+        flexShrink: 0
     };
 
+    const filteredMentees = (Array.isArray(mentees) ? mentees : []).filter(mentee => 
+        mentee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        mentee.id.toString().includes(searchTerm)
+    );
+
     return (
-        <div style={{ padding: "2rem", background: "#f8f9fa", minHeight: "100vh" }}>
-            <h1 style={{ color: "#3a86ff", fontWeight: 700, fontSize: "2.5rem", marginBottom: "1.5rem" }}>
-                Mentor Dashboard
-            </h1>
+        <div style={{ padding: "2rem", minHeight: "100vh", maxWidth: '1400px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                <h1 style={{ color: "#1a365d", fontWeight: 700, fontSize: "2.25rem", marginBottom: "0.5rem" }}>
+                    Mentor Dashboard
+                </h1>
+                <p style={{ color: '#4a5568', fontSize: '1.05rem' }}>Monitor and track your mentees' progress</p>
+            </div>
+            
             {mentor && (
-                <div style={{ marginBottom: 32, textAlign: 'center' }}>
-                    <div style={avatarStyle}>{mentor.name ? mentor.name[0] : 'M'}</div>
-                    <div style={{ fontWeight: 700, fontSize: 20 }}>{mentor.name || 'Mentor'}</div>
-                    <div style={{ color: '#555', fontSize: 16 }}>ID: {mentor.id}</div>
+                <div style={{ 
+                    marginBottom: '2rem', 
+                    background: 'white',
+                    borderRadius: '16px',
+                    padding: '1.5rem',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1.5rem'
+                }}>
+                    <div style={avatarStyle}>{mentor.name ? mentor.name[0].toUpperCase() : 'M'}</div>
+                    <div style={{ textAlign: 'left' }}>
+                        <div style={{ fontWeight: 700, fontSize: '1.25rem', color: '#1a365d', marginBottom: '0.25rem' }}>{mentor.name || 'Mentor'}</div>
+                        <div style={{ color: '#718096', fontSize: '0.95rem' }}>Mentor ID: {mentor.id}</div>
+                    </div>
                 </div>
             )}
-            {loading && <p>Loading mentees...</p>}
-            {error && <div style={{ color: "red" }}>{error}</div>}
-            {!loading && mentees.length === 0 && (
+
+            {/* Search Bar */}
+            <div style={{ marginBottom: '2rem' }}>
+                <input
+                    type="text"
+                    placeholder="🔍 Search students by name or ID..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{
+                        width: '100%',
+                        maxWidth: '500px',
+                        padding: '0.875rem 1.25rem',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '12px',
+                        fontSize: '1rem',
+                        transition: 'all 0.2s ease',
+                        background: 'white',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                    onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+                />
+            </div>
+
+            {loading && <p style={{ textAlign: 'center', color: '#718096', fontSize: '1.05rem' }}>Loading mentees...</p>}
+            {error && <div style={{ color: "#e53e3e", textAlign: 'center', padding: '1rem', background: 'rgba(229, 62, 62, 0.1)', borderRadius: '12px' }}>{error}</div>}
+            
+            {!loading && filteredMentees.length === 0 && searchTerm === "" && (
                 <div style={{
-                    background: '#fff',
+                    background: 'white',
                     borderRadius: 16,
-                    boxShadow: '0 4px 24px rgba(58,134,255,0.08)',
-                    padding: '2.5rem',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+                    padding: '3rem 2rem',
                     maxWidth: 480,
                     margin: '2rem auto',
                     textAlign: 'center',
                 }}>
-                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="No mentees" style={{ width: 96, marginBottom: 16, opacity: 0.7 }} />
-                    <h3 style={{ color: '#3a86ff', marginBottom: 8 }}>No mentees assigned yet</h3>
-                    <p style={{ color: '#555', marginBottom: 0 }}>
-                        Invite users to select you as their mentor. Once users assign you, their progress and results will appear here.
+                    <div style={{ fontSize: '4rem', marginBottom: '1rem', opacity: 0.5 }}>👥</div>
+                    <h3 style={{ color: '#1a365d', marginBottom: '0.75rem', fontSize: '1.5rem' }}>No mentees assigned yet</h3>
+                    <p style={{ color: '#718096', marginBottom: 0, lineHeight: 1.6 }}>
+                        Students will appear here once they select you as their mentor.
                     </p>
                 </div>
             )}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem" }}>
-                {(Array.isArray(mentees) ? mentees : []).map((mentee) => (
+
+            {!loading && filteredMentees.length === 0 && searchTerm !== "" && (
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#718096' }}>
+                    No students found matching "{searchTerm}"
+                </div>
+            )}
+
+            <div style={{ 
+                display: "grid", 
+                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", 
+                gap: "1.5rem" 
+            }}>
+                {filteredMentees.map((mentee) => (
                     <div
                         key={mentee.id}
                         style={{
-                            background: "#fff",
+                            background: "white",
                             borderRadius: "16px",
-                            boxShadow: "0 4px 24px rgba(58,134,255,0.08)",
-                            padding: "2rem",
-                            minWidth: "260px",
-                            flex: "1 1 300px",
+                            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.06)",
+                            padding: "1.75rem",
+                            border: '1px solid rgba(0, 0, 0, 0.06)',
+                            transition: 'all 0.3s ease',
+                            cursor: 'default'
+                        }}
+                        onMouseOver={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-4px)';
+                            e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.1)';
+                        }}
+                        onMouseOut={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.06)';
                         }}
                     >
-                        <h3 style={{ color: "#3a86ff", marginBottom: "0.5rem" }}>{mentee.name}</h3>
-                        <div style={{ color: "#555", marginBottom: "0.5rem" }}>ID: {mentee.id}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                            <div style={{
+                                ...avatarStyle,
+                                width: 48,
+                                height: 48,
+                                fontSize: 20,
+                                marginBottom: 0
+                            }}>
+                                {mentee.name ? mentee.name[0].toUpperCase() : 'S'}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <h3 style={{ color: "#1a365d", marginBottom: "0.25rem", fontSize: '1.15rem', fontWeight: '600' }}>{mentee.name}</h3>
+                                <div style={{ color: "#718096", fontSize: '0.85rem' }}>ID: {mentee.id}</div>
+                            </div>
+                        </div>
                         <MenteeResults userId={mentee.id} />
                     </div>
                 ))}
@@ -109,19 +190,38 @@ function MenteeResults({ userId }) {
             .catch(() => setLoading(false));
     }, [userId]);
 
-    if (loading) return <p style={{ color: "#aaa" }}>Loading results...</p>;
-    if (results.length === 0) return <p style={{ color: "#aaa" }}>No quiz results yet.</p>;
+    if (loading) return <p style={{ color: "#a0aec0", fontSize: '0.9rem', margin: '0.5rem 0' }}>Loading results...</p>;
+    if (results.length === 0) return <p style={{ color: "#a0aec0", fontSize: '0.9rem', fontStyle: 'italic', margin: '0.5rem 0' }}>No quiz results yet</p>;
 
     return (
-        <div style={{ marginTop: "1rem" }}>
-            <h4 style={{ color: "#3a86ff", fontSize: "1.1rem", marginBottom: "0.5rem" }}>Quiz Results</h4>
-            <ul style={{ paddingLeft: 0, listStyle: "none" }}>
-                {(Array.isArray(results) ? results : []).map((r) => (
-                    <li key={r.id} style={{ marginBottom: "0.5rem", color: "#222" }}>
-                        <b>{r.quizTitle || "Quiz"}:</b> {r.score} / {r.totalQuestions}
-                    </li>
+        <div style={{ marginTop: "1rem", paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
+            <h4 style={{ color: "#1a365d", fontSize: "1rem", marginBottom: "0.75rem", fontWeight: '600' }}>Quiz Results</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {(Array.isArray(results) ? results : []).slice(0, 3).map((r) => (
+                    <div key={r.id} style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        padding: '0.625rem 0.875rem',
+                        background: '#f7fafc',
+                        borderRadius: '8px',
+                        fontSize: '0.9rem'
+                    }}>
+                        <span style={{ color: '#2d3748', fontWeight: '500' }}>{r.quizTitle || `Quiz #${r.quizId}`}</span>
+                        <span style={{ 
+                            color: r.score / r.totalQuestions >= 0.7 ? '#38a169' : r.score / r.totalQuestions >= 0.5 ? '#d69e2e' : '#e53e3e',
+                            fontWeight: '700'
+                        }}>
+                            {r.score}/{r.totalQuestions}
+                        </span>
+                    </div>
                 ))}
-            </ul>
+                {results.length > 3 && (
+                    <div style={{ color: '#718096', fontSize: '0.85rem', marginTop: '0.25rem', textAlign: 'center' }}>
+                        +{results.length - 3} more results
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

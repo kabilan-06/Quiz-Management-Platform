@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import Notification from './Notification';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
@@ -14,7 +13,9 @@ const Home = () => {
 
   const containerStyle = {
     textAlign: 'center',
-    padding: '2rem 0'
+    padding: '3rem 1rem',
+    maxWidth: '1200px',
+    margin: '0 auto'
   };
 
   const welcomeStyle = {
@@ -45,25 +46,20 @@ const Home = () => {
 
   const statsContainerStyle = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
     gap: '1.5rem',
-    marginTop: '3rem'
+    marginTop: '3rem',
+    marginBottom: '2rem'
   };
 
   const statCardStyle = {
-    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6))',
+    background: 'white',
     padding: '2rem',
-    borderRadius: 'var(--border-radius)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    backdropFilter: 'blur(10px)'
-  };
-
-  const statNumberStyle = {
-    fontSize: '2rem',
-    fontWeight: '700',
-    color: 'var(--accent-color)',
-    marginBottom: '0.5rem'
+    borderRadius: '16px',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+    border: '1px solid rgba(0, 0, 0, 0.06)',
+    transition: 'all 0.3s ease',
+    cursor: 'default'
   };
 
   const statLabelStyle = {
@@ -85,23 +81,19 @@ const Home = () => {
     marginBottom: '1rem'
   };
 
-  // Notification demo
-  const [notif, setNotif] = useState({ message: '', type: 'info' });
-  const showSuccess = () => setNotif({ message: 'Welcome back! 🎉', type: 'success' });
-  const showError = () => setNotif({ message: 'Something went wrong!', type: 'error' });
-
   const avatarStyle = {
-    width: 64,
-    height: 64,
+    width: 80,
+    height: 80,
     borderRadius: '50%',
-    background: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 32,
+    fontSize: 36,
+    fontWeight: '600',
     color: '#fff',
     marginBottom: 16,
-    boxShadow: '0 2px 8px #c2e9fb',
+    boxShadow: '0 4px 16px rgba(102, 126, 234, 0.3)'
   };
 
   const displayName = user?.name || 'Guest';
@@ -109,7 +101,6 @@ const Home = () => {
 
   return (
     <div style={containerStyle} className="fade-in">
-      <Notification message={notif.message} type={notif.type} onClose={() => setNotif({ message: '', type: 'info' })} />
       <h1 style={welcomeStyle}>Welcome to QuizMaster Pro</h1>
       <div style={roleStyle}>{displayRole}</div>
       <div style={avatarStyle}>{displayName[0]}</div>
@@ -126,29 +117,24 @@ const Home = () => {
       {/* Removed demo notification buttons for cleaner UI */}
       <div style={statsContainerStyle}>
         <div style={statCardStyle} className="slide-in">
-          <div style={statNumberStyle}>∞</div>
+          <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>∞</div>
           <div style={statLabelStyle}>Unlimited Quizzes</div>
         </div>
         <div style={statCardStyle} className="slide-in">
-          <div style={statNumberStyle}>⚡</div>
+          <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>⚡</div>
           <div style={statLabelStyle}>Real-time Results</div>
         </div>
         <div style={statCardStyle} className="slide-in">
-          <div style={statNumberStyle}>📊</div>
+          <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>📊</div>
           <div style={statLabelStyle}>Analytics Dashboard</div>
-          <div style={{ marginTop: '1rem', height: 120, background: 'linear-gradient(90deg, #a1c4fd 0%, #c2e9fb 100%)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3a86ff', fontWeight: 700, fontSize: 24, opacity: 0.7 }}>
-            [Chart Coming Soon]
-          </div>
         </div>
       </div>
       {user && (
-        <div style={{ marginTop: 32, display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 16 }}>
-          <button onClick={() => navigate('/take-quiz')} style={{ background: '#3a86ff', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Start a Quiz</button>
-          <button onClick={() => navigate('/results')} style={{ background: '#38b000', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>View Results</button>
-          <button onClick={() => navigate('/flashcards')} style={{ background: '#ffb300', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Study Flashcards</button>
-          <button onClick={() => navigate('/team-quiz')} style={{ background: '#8e24aa', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Team Quiz</button>
-          <button onClick={() => alert('Tutorial coming soon!')} style={{ background: '#3a86ff', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Show Tutorial</button>
-          <button onClick={() => navigate('/profile')} style={{ background: '#e63946', color: '#fff', padding: '0.75rem 2rem', borderRadius: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Edit Profile</button>
+        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', maxWidth: '900px', margin: '2rem auto 0' }}>
+          <button onClick={() => navigate('/take-quiz')} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', padding: '0.875rem 1.75rem', borderRadius: '10px', fontWeight: '600', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)', transition: 'all 0.3s ease', fontSize: '0.95rem' }} onMouseOver={e => e.target.style.transform = 'translateY(-2px)'} onMouseOut={e => e.target.style.transform = 'translateY(0)'}>Start a Quiz</button>
+          <button onClick={() => navigate('/results')} style={{ background: 'linear-gradient(135deg, #38a169 0%, #2f855a 100%)', color: '#fff', padding: '0.875rem 1.75rem', borderRadius: '10px', fontWeight: '600', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(56, 161, 105, 0.3)', transition: 'all 0.3s ease', fontSize: '0.95rem' }} onMouseOver={e => e.target.style.transform = 'translateY(-2px)'} onMouseOut={e => e.target.style.transform = 'translateY(0)'}>View Results</button>
+          <button onClick={() => navigate('/flashcards')} style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', color: '#fff', padding: '0.875rem 1.75rem', borderRadius: '10px', fontWeight: '600', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(240, 147, 251, 0.3)', transition: 'all 0.3s ease', fontSize: '0.95rem' }} onMouseOver={e => e.target.style.transform = 'translateY(-2px)'} onMouseOut={e => e.target.style.transform = 'translateY(0)'}>Study Flashcards</button>
+          <button onClick={() => navigate('/team-quiz')} style={{ background: 'linear-gradient(135deg, #8e24aa 0%, #6a1b9a 100%)', color: '#fff', padding: '0.875rem 1.75rem', borderRadius: '10px', fontWeight: '600', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(142, 36, 170, 0.3)', transition: 'all 0.3s ease', fontSize: '0.95rem' }} onMouseOver={e => e.target.style.transform = 'translateY(-2px)'} onMouseOut={e => e.target.style.transform = 'translateY(0)'}>Team Quiz</button>
         </div>
       )}
     </div>

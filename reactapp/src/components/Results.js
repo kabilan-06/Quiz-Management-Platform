@@ -24,7 +24,9 @@ const Results = () => {
   }, [user]);
 
   const containerStyle = {
-    padding: '2rem 0'
+    padding: '2rem 1rem',
+    maxWidth: '900px',
+    margin: '0 auto'
   };
 
   const titleStyle = {
@@ -36,19 +38,22 @@ const Results = () => {
   };
 
   const resultCardStyle = {
-    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6))',
-    padding: '1.5rem',
-    borderRadius: 'var(--border-radius)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    backdropFilter: 'blur(10px)',
-    marginBottom: '1rem'
+    background: 'white',
+    padding: '1.75rem',
+    borderRadius: '16px',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+    border: '1px solid rgba(0, 0, 0, 0.06)',
+    marginBottom: '1rem',
+    transition: 'all 0.3s ease'
   };
 
   const scoreStyle = {
-    fontSize: '1.5rem',
+    fontSize: '2rem',
     fontWeight: '700',
-    color: 'var(--accent-color)'
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    WebkitBackgroundClip: 'text',
+    backgroundClip: 'text',
+    color: 'transparent'
   };
 
   if (loading) {
@@ -65,37 +70,96 @@ const Results = () => {
 
       {results.length === 0 ? (
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6))',
-          padding: '2rem',
-          borderRadius: 'var(--border-radius)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+          background: 'white',
+          padding: '3rem 2rem',
+          borderRadius: '16px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
           textAlign: 'center',
-          color: 'var(--secondary-color)'
+          color: '#718096'
         }}>
-          <p>No quiz results found. Take a quiz to see your results here!</p>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>📈</div>
+          <p style={{ margin: 0, fontSize: '1.05rem' }}>No quiz results found. Take a quiz to see your results here!</p>
         </div>
       ) : (
         <div>
-          {results.map((result) => (
-            <div key={result.id} style={resultCardStyle} className="slide-in">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ color: 'var(--primary-color)', margin: 0 }}>Quiz #{result.quizId}</h3>
-                <span style={scoreStyle}>{result.score}/{result.totalQuestions}</span>
-              </div>
+          {results.map((result) => {
+            const percentage = Math.round((result.score / result.totalQuestions) * 100);
+            const isPassing = percentage >= 70;
+            
+            return (
+              <div 
+                key={result.id} 
+                style={resultCardStyle} 
+                className="slide-in"
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.1)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.06)';
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                  <h3 style={{ color: '#1a365d', margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>Quiz #{result.quizId}</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={scoreStyle}>{result.score}/{result.totalQuestions}</span>
+                    <div style={{
+                      background: isPassing ? 'linear-gradient(135deg, #38a169 0%, #2f855a 100%)' : 'linear-gradient(135deg, #e53e3e 0%, #c53030 100%)',
+                      color: 'white',
+                      padding: '0.375rem 0.875rem',
+                      borderRadius: '20px',
+                      fontSize: '0.85rem',
+                      fontWeight: '600'
+                    }}>
+                      {percentage}%
+                    </div>
+                  </div>
+                </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', fontSize: '0.9rem', color: 'var(--secondary-color)' }}>
-                <div>
-                  <strong>Score:</strong> {Math.round((result.score / result.totalQuestions) * 100)}%
+                {/* Progress Bar */}
+                <div style={{ 
+                  width: '100%', 
+                  height: '8px', 
+                  background: '#e2e8f0', 
+                  borderRadius: '4px', 
+                  overflow: 'hidden',
+                  marginBottom: '1rem'
+                }}>
+                  <div style={{
+                    width: `${percentage}%`,
+                    height: '100%',
+                    background: isPassing ? 'linear-gradient(90deg, #38a169 0%, #2f855a 100%)' : 'linear-gradient(90deg, #e53e3e 0%, #c53030 100%)',
+                    transition: 'width 0.5s ease'
+                  }} />
                 </div>
-                <div>
-                  <strong>Date:</strong> {new Date(result.completedAt).toLocaleDateString()}
-                </div>
-                <div>
-                  <strong>Time:</strong> {new Date(result.completedAt).toLocaleTimeString()}
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', fontSize: '0.9rem', color: '#4a5568' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '1.25rem' }}>🎯</span>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', color: '#718096' }}>Score</div>
+                      <div style={{ fontWeight: '600' }}>{percentage}%</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '1.25rem' }}>📅</span>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', color: '#718096' }}>Date</div>
+                      <div style={{ fontWeight: '600' }}>{new Date(result.completedAt).toLocaleDateString()}</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '1.25rem' }}>⏰</span>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', color: '#718096' }}>Time</div>
+                      <div style={{ fontWeight: '600' }}>{new Date(result.completedAt).toLocaleTimeString()}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

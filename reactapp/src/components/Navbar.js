@@ -11,24 +11,25 @@ const Navbar = () => {
     left: 0,
     right: 0,
     zIndex: 1000,
-    background: 'linear-gradient(90deg, #a1c4fd 0%, #c2e9fb 100%)',
+    background: 'rgba(255, 255, 255, 0.95)',
     backdropFilter: 'blur(24px)',
-    borderBottom: '2px solid #e0e7ef',
-    padding: '1.2rem 2.5rem',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+    padding: '1rem 2rem',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    boxShadow: '0 8px 32px rgba(58,134,255,0.08)'
+    boxShadow: '0 2px 12px rgba(0, 0, 0, 0.04)'
   };
 
   const brandStyle = {
-    fontSize: '2rem',
-    fontWeight: '800',
-    color: '#3a86ff',
+    fontSize: '1.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    WebkitBackgroundClip: 'text',
+    backgroundClip: 'text',
+    color: 'transparent',
     textDecoration: 'none',
-    letterSpacing: '-0.025em',
-    textShadow: '0 2px 8px #c2e9fb',
-    fontFamily: 'Segoe UI, Arial, sans-serif'
+    letterSpacing: '-0.025em'
   };
 
   const navLinksStyle = {
@@ -38,28 +39,28 @@ const Navbar = () => {
   };
 
   const linkStyle = {
-    color: 'var(--secondary-color)',
+    color: '#4a5568',
     textDecoration: 'none',
-    padding: '0.75rem 1.25rem',
-    borderRadius: 'var(--border-radius)',
-    transition: 'var(--transition)',
+    padding: '0.625rem 1rem',
+    borderRadius: '8px',
+    transition: 'all 0.2s ease',
     fontWeight: '500',
-    fontSize: '0.95rem',
+    fontSize: '0.9rem',
     position: 'relative'
   };
 
   const activeLinkStyle = {
     ...linkStyle,
-    background: 'var(--gradient-primary)',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     color: 'white',
-    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
+    boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)'
   };
 
   const logoutStyle = {
     ...linkStyle,
-    background: 'var(--error-color)',
+    background: '#e53e3e',
     color: 'white',
-    marginLeft: '1rem'
+    marginLeft: '0.5rem'
   };
 
   // Accessibility toggles
@@ -142,11 +143,36 @@ const Navbar = () => {
         </Link>
 
         {/* Accessibility toggles */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 16 }}>
-          <button onClick={handleDarkToggle} style={{ ...linkStyle, background: dark ? '#23272f' : '#e0e7ef', color: dark ? '#fff' : '#222', fontWeight: 700 }}>
-            {dark ? '☀️ Light' : '🌙 Dark'}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: '1rem' }}>
+          <button 
+            onClick={handleDarkToggle} 
+            style={{ 
+              ...linkStyle, 
+              background: dark ? '#2d3748' : '#f7fafc', 
+              color: dark ? '#fff' : '#2d3748',
+              border: '1px solid ' + (dark ? '#4a5568' : '#e2e8f0'),
+              padding: '0.5rem 0.875rem',
+              fontSize: '0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.375rem'
+            }}
+          >
+            <span>{dark ? '☀️' : '🌙'}</span>
           </button>
-          <select value={fontSize} onChange={e => handleFontSize(e.target.value)} style={{ ...linkStyle, padding: '0.5rem 1rem', fontWeight: 700 }}>
+          <select 
+            value={fontSize} 
+            onChange={e => handleFontSize(e.target.value)} 
+            style={{ 
+              ...linkStyle, 
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.85rem',
+              border: '1px solid #e2e8f0',
+              background: '#f7fafc',
+              color: '#2d3748',
+              cursor: 'pointer'
+            }}
+          >
             <option value="small">A-</option>
             <option value="medium">A</option>
             <option value="large">A+</option>

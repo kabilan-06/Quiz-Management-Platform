@@ -75,25 +75,25 @@ function AppContent({ quizzes }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%)',
-      fontFamily: 'Segoe UI, Arial, sans-serif',
-      color: '#222'
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
+      color: '#1a202c'
     }}>
       <Navbar />
       <main style={{
-        paddingTop: '80px',
-        padding: '80px 2rem 2rem',
-        maxWidth: '1200px',
+        paddingTop: '90px',
+        padding: '90px 1.5rem 2rem',
+        maxWidth: '1400px',
         margin: '0 auto'
       }}>
         <div style={{
-          background: 'rgba(255, 255, 255, 0.97)',
-          backdropFilter: 'blur(24px)',
-          borderRadius: '32px',
-          boxShadow: '0 8px 32px rgba(58,134,255,0.08)',
+          background: 'rgba(255, 255, 255, 0.8)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '24px',
+          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06)',
           padding: '2.5rem',
           minHeight: '500px',
-          transition: 'box-shadow 0.3s',
+          transition: 'all 0.3s ease',
         }} className="fade-in">
           <Routes>
             <Route path="/home" element={<Home />} />

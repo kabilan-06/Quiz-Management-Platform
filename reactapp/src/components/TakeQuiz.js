@@ -32,9 +32,10 @@ export default function TakeQuiz({ quizzes }) {
   }
 
   const containerStyle = {
-    maxWidth: '600px',
+    maxWidth: '800px',
     margin: '0 auto',
-    textAlign: 'center'
+    textAlign: 'center',
+    padding: '2rem 1rem'
   };
 
   const headerStyle = {
@@ -56,25 +57,27 @@ export default function TakeQuiz({ quizzes }) {
 
   const selectStyle = {
     width: '100%',
-    padding: '1rem',
+    padding: '1rem 1.25rem',
     border: '2px solid #e2e8f0',
-    borderRadius: 'var(--border-radius)',
+    borderRadius: '12px',
     fontSize: '1rem',
     background: 'white',
-    marginBottom: '2rem',
-    cursor: 'pointer'
+    marginBottom: '1.5rem',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
   };
 
   const buttonStyle = {
-    background: 'var(--gradient-primary)',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     color: 'white',
-    padding: '1rem 2rem',
+    padding: '1rem 2.5rem',
     border: 'none',
-    borderRadius: 'var(--border-radius)',
+    borderRadius: '12px',
     fontSize: '1rem',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'var(--transition)',
+    transition: 'all 0.3s ease',
     boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
     minWidth: '200px'
   };
@@ -87,14 +90,13 @@ export default function TakeQuiz({ quizzes }) {
   };
 
   const quizCardStyle = {
-    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6))',
-    padding: '1.5rem',
-    borderRadius: 'var(--border-radius)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    backdropFilter: 'blur(10px)',
+    background: 'white',
+    padding: '1.75rem',
+    borderRadius: '16px',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+    border: '1px solid rgba(0, 0, 0, 0.06)',
     cursor: 'pointer',
-    transition: 'var(--transition)',
+    transition: 'all 0.3s ease',
     textAlign: 'left'
   };
 
@@ -137,10 +139,23 @@ export default function TakeQuiz({ quizzes }) {
               key={quiz.id}
               style={{
                 ...quizCardStyle,
-                border: selectedQuizId === quiz.id.toString() ? '2px solid var(--accent-color)' : '1px solid rgba(255, 255, 255, 0.2)'
+                border: selectedQuizId === quiz.id.toString() ? '2px solid #667eea' : '1px solid rgba(0, 0, 0, 0.06)',
+                boxShadow: selectedQuizId === quiz.id.toString() ? '0 8px 30px rgba(102, 126, 234, 0.2)' : '0 4px 20px rgba(0, 0, 0, 0.06)'
               }}
               onClick={() => setSelectedQuizId(quiz.id.toString())}
               className="slide-in"
+              onMouseOver={(e) => {
+                if (selectedQuizId !== quiz.id.toString()) {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.1)';
+                }
+              }}
+              onMouseOut={(e) => {
+                if (selectedQuizId !== quiz.id.toString()) {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.06)';
+                }
+              }}
             >
               <h4 style={{ color: 'var(--primary-color)', marginBottom: '0.5rem', fontSize: '1.2rem' }}>
                 {quiz.title}
@@ -166,13 +181,15 @@ export default function TakeQuiz({ quizzes }) {
 
       {quizzes.length === 0 && (
         <div style={{
-          background: 'linear-gradient(135deg, rgba(209, 213, 219, 0.1), rgba(209, 213, 219, 0.05))',
-          padding: '2rem',
-          borderRadius: 'var(--border-radius)',
+          background: 'white',
+          padding: '3rem 2rem',
+          borderRadius: '16px',
           marginTop: '2rem',
-          color: 'var(--secondary-color)'
+          color: '#718096',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)'
         }}>
-          <p>No quizzes available at the moment.</p>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>📝</div>
+          <p style={{ margin: 0, fontSize: '1.05rem' }}>No quizzes available at the moment.</p>
         </div>
       )}
     </div>

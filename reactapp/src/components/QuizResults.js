@@ -1,7 +1,6 @@
 // src/components/QuizResults.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Leaderboard from "./Leaderboard";
-import { useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -20,62 +19,24 @@ export default function QuizResults() {
       axios
         .get(`https://quiz-management-platform.onrender.com/api/quiz-attempts/quizzes/${quizId}/attempts`)
         .then((res) => {
-          useEffect(() => {
-            if (role === "USER" && quizId) {
-              setLoading(true);
-              axios
-                .get(`https://quiz-management-platform.onrender.com/api/quiz-attempts/quizzes/${quizId}/attempts`)
-                .then((res) => {
-                  setAttempts(res.data);
-                  setLoading(false);
-                })
-                .catch((err) => {
-                  console.error("Failed to fetch quiz results:", err);
-                  setLoading(false);
-                });
-            }
-          }, [role, quizId]);
+          setAttempts(res.data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch quiz results:", err);
+          setLoading(false);
+        });
+    }
+  }, [role, quizId]);
 
-          // Always call hooks at the top level
-          const analytics = useMemo(() => {
-            if (!attempts.length) return null;
-            const scores = attempts.map(a => a.score);
-            const best = Math.max(...scores);
-            const worst = Math.min(...scores);
-            const avg = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
-            return { best, worst, avg };
-          }, [attempts]);
-
-          if (role !== "USER") return <p>Access denied. Only users can view results.</p>;
-
-          if (loading) return <p>Loading...</p>;
-
-          // Show quiz list if no quizId
-          if (!quizId) {
-            return (
-              <div style={{ padding: "1.5rem" }}>
-                <h2>All Quizzes</h2>
-                {quizzes.length === 0 && <p>No quizzes found.</p>}
-                {quizzes.map((quiz) => (
-                  <div
-                    key={quiz.id}
-                    style={{
-                      padding: "0.5rem",
-                      border: "1px solid #ddd",
-                      marginBottom: "0.5rem",
-                      borderRadius: "6px",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => navigate(`/results/${quiz.id}`)}
-                  >
-                    {quiz.title || `Quiz #${quiz.id}`}
-                  </div>
-                ))}
-              </div>
-            );
-          }
-    </div>
-  );
+  const analytics = useMemo(() => {
+    if (!attempts.length) return null;
+    const scores = attempts.map(a => a.score);
+    const best = Math.max(...scores);
+    const worst = Math.min(...scores);
+    const avg = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
+    return { best, worst, avg };
+  }, [attempts]);
 
   const handleExport = () => {
     const csv = [
@@ -91,10 +52,38 @@ export default function QuizResults() {
     URL.revokeObjectURL(url);
   };
 
+  if (role !== "USER") return <p>Access denied. Only users can view results.</p>;
+
+  if (loading) return <p>Loading...</p>;
+
+  if (!quizId) {
+    return (
+      <div style={{ padding: "1.5rem" }}>
+        <h2>All Quizzes</h2>
+        {quizzes.length === 0 && <p>No quizzes found.</p>}
+        {quizzes.map((quiz) => (
+          <div
+            key={quiz.id}
+            style={{
+              padding: "0.5rem",
+              border: "1px solid #ddd",
+              marginBottom: "0.5rem",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+            onClick={() => navigate(`/results/${quiz.id}`)}
+          >
+            {quiz.title || `Quiz #${quiz.id}`}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: "1.5rem" }}>
       <h2>Quiz Results</h2>
-      <button onClick={handleExport} style={{ marginBottom: 16, background: '#2193b0', color: '#fff', border: 'none', borderRadius: 8, padding: '0.5rem 1.2rem', fontWeight: 600, cursor: 'pointer' }}>Export CSV</button>
+      <button onClick={handleExport} style={{ marginBottom: 16, background: '#667eea', color: '#fff', border: 'none', borderRadius: 12, padding: '0.75rem 1.5rem', fontWeight: 600, cursor: 'pointer' }}>Export CSV</button>
       {analytics && (
         <div style={{ marginBottom: 16, background: '#f1f8e9', padding: 12, borderRadius: 8 }}>
           <b>Analytics:</b> Avg Score: {analytics.avg} | Best: {analytics.best} | Worst: {analytics.worst}
