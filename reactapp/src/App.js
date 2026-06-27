@@ -733,12 +733,26 @@ function Results({ user }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const latestResult = (() => {
+      try {
+        return JSON.parse(sessionStorage.getItem("latestQuizResult"));
+      } catch {
+        return null;
+      }
+    })();
+
     axios
       .get(`${API_BASE_URL}/quiz-attempts/user/${user.id}`)
       .then((response) => {
-        if (Array.isArray(response.data)) setResults(response.data);
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setResults(response.data);
+        } else if (latestResult) {
+          setResults([latestResult]);
+        } else {
+          setResults([]);
+        }
       })
-      .catch(() => setResults([]))
+      .catch(() => setResults(latestResult ? [latestResult] : []))
       .finally(() => setLoading(false));
   }, [user.id]);
 
