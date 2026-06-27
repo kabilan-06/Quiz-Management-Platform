@@ -93,21 +93,6 @@ const MOCK_QUESTIONS = [
   },
 ];
 
-const MOCK_RESULTS = [
-  { id: 1, quizId: 1, quizTitle: "Java Fundamentals", score: 4, totalQuestions: 5, completedAt: "2026-02-03T10:20:00" },
-  { id: 2, quizId: 2, quizTitle: "Spring Boot APIs", score: 3, totalQuestions: 5, completedAt: "2026-02-05T14:10:00" },
-  { id: 3, quizId: 3, quizTitle: "React Essentials", score: 5, totalQuestions: 5, completedAt: "2026-02-08T09:45:00" },
-];
-
-const MENTOR_STUDENTS = [
-  { name: "Aarav", track: "Java", scores: [82, 76, 91] },
-  { name: "Diya", track: "React", scores: [94, 88, 90] },
-  { name: "Kabir", track: "Spring", scores: [71, 68, 79] },
-  { name: "Meera", track: "Full Stack", scores: [86, 92, 89] },
-  { name: "Nikhil", track: "Java", scores: [64, 72, 75] },
-  { name: "Sara", track: "React", scores: [90, 93, 96] },
-];
-
 const MOCK_ACCOUNTS = [
   { id: 101, name: "Aarav Student", role: "USER" },
   { id: 102, name: "Diya Student", role: "USER" },
@@ -148,11 +133,11 @@ function normalizeQuestion(question, index = 0) {
   const options = question.options?.length
     ? question.options
     : [
-        { id: `${question.id}-a`, optionText: question.optionA, correct: false },
-        { id: `${question.id}-b`, optionText: question.optionB, correct: false },
-        { id: `${question.id}-c`, optionText: question.optionC, correct: false },
-        { id: `${question.id}-d`, optionText: question.optionD, correct: false },
-      ].filter((option) => option.optionText);
+      { id: `${question.id}-a`, optionText: question.optionA, correct: false },
+      { id: `${question.id}-b`, optionText: question.optionB, correct: false },
+      { id: `${question.id}-c`, optionText: question.optionC, correct: false },
+      { id: `${question.id}-d`, optionText: question.optionD, correct: false },
+    ].filter((option) => option.optionText);
 
   return {
     id: question.id ?? question.questionId ?? index + 1,
@@ -365,9 +350,21 @@ function Login({ auth }) {
 
 function Signup({ auth }) {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "USER", mentorKey: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "USER", mentorKey: "", mentorId: "" });
+  const [mentors, setMentors] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (form.role !== "USER") {
+      return;
+    }
+
+    axios
+      .get(`${API_BASE_URL}/auth/mentors`)
+      .then((response) => setMentors(Array.isArray(response.data) ? response.data : []))
+      .catch(() => setMentors([]));
+  }, [form.role]);
 
   const submit = async (event) => {
     event.preventDefault();
@@ -375,7 +372,16 @@ function Signup({ auth }) {
     setLoading(true);
 
     try {
-      const params = form.role === "MENTOR" ? { mentorKey: form.mentorKey } : {};
+      const params = {};
+
+      if (form.role === "MENTOR" && form.mentorKey) {
+        params.mentorKey = form.mentorKey;
+      }
+
+      if (form.role === "USER" && form.mentorId) {
+        params.mentorId = form.mentorId;
+      }
+
       await axios.post(
         `${API_BASE_URL}/auth/signup`,
         {
@@ -414,6 +420,22 @@ function Signup({ auth }) {
               <option value="MENTOR">Mentor</option>
             </select>
           </label>
+          {form.role === "USER" && (
+            <label>
+              Choose mentor
+              <select
+                value={form.mentorId}
+                onChange={(event) => setForm({ ...form, mentorId: event.target.value })}
+              >
+                <option value="">No mentor</option>
+                {mentors.map((mentor) => (
+                  <option key={mentor.id} value={mentor.id}>
+                    {mentor.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           {form.role === "MENTOR" && (
             <label>
               Mentor key
@@ -707,21 +729,23 @@ function QuizResult() {
 }
 
 function Results({ user }) {
-  const [results, setResults] = useState(MOCK_RESULTS);
+  const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/quiz-attempts/user/${user.id}`)
       .then((response) => {
-        if (Array.isArray(response.data) && response.data.length) setResults(response.data);
+        if (Array.isArray(response.data)) setResults(response.data);
       })
-      .catch(() => setResults(MOCK_RESULTS))
+      .catch(() => setResults([]))
       .finally(() => setLoading(false));
   }, [user.id]);
 
-  const average = Math.round(results.reduce((total, item) => total + percent(item.score, item.totalQuestions), 0) / Math.max(results.length, 1));
-  const best = Math.max(...results.map((item) => percent(item.score, item.totalQuestions)));
+  const average = results.length
+    ? Math.round(results.reduce((total, item) => total + percent(item.score, item.totalQuestions), 0) / results.length)
+    : 0;
+  const best = results.length ? Math.max(...results.map((item) => percent(item.score, item.totalQuestions))) : 0;
 
   const exportCsv = () => {
     const rows = [["Quiz", "Score", "Total", "Percent", "Completed"]];
@@ -751,21 +775,28 @@ function Results({ user }) {
         <article className="stat-card"><span>Total taken</span><strong>{results.length}</strong></article>
       </div>
       <div className="result-list">
-        {results.map((item) => {
-          const value = percent(item.score, item.totalQuestions);
-          return (
-            <article className="result-row" key={item.id ?? `${item.quizId}-${item.completedAt}`}>
-              <div>
-                <h3>{item.quizTitle ?? `Quiz ${item.quizId}`}</h3>
-                <p>{new Date(item.completedAt ?? Date.now()).toLocaleString()}</p>
-              </div>
-              <div className="result-meter">
-                <span style={{ width: `${value}%` }} />
-              </div>
-              <strong>{value}%</strong>
-            </article>
-          );
-        })}
+        {results.length > 0 ? (
+          results.map((item) => {
+            const value = percent(item.score, item.totalQuestions);
+            return (
+              <article className="result-row" key={item.id ?? `${item.quizId}-${item.completedAt}`}>
+                <div>
+                  <h3>{item.quizTitle ?? `Quiz ${item.quizId}`}</h3>
+                  <p>{new Date(item.completedAt ?? Date.now()).toLocaleString()}</p>
+                </div>
+                <div className="result-meter">
+                  <span style={{ width: `${value}%` }} />
+                </div>
+                <strong>{value}%</strong>
+              </article>
+            );
+          })
+        ) : (
+          <div className="empty-state">
+            <span className="eyebrow">No results yet</span>
+            <p>Your quiz attempts will appear here once you complete a quiz.</p>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -773,8 +804,8 @@ function Results({ user }) {
 
 function MentorDashboard() {
   const [query, setQuery] = useState("");
-  const students = MENTOR_STUDENTS.filter((student) => `${student.name} ${student.track}`.toLowerCase().includes(query.toLowerCase()));
-  const classAverage = Math.round(MENTOR_STUDENTS.flatMap((student) => student.scores).reduce((total, score) => total + score, 0) / MENTOR_STUDENTS.flatMap((student) => student.scores).length);
+  const students = [];
+  const classAverage = 0;
 
   return (
     <section className="two-column mentor-layout">
@@ -791,21 +822,28 @@ function MentorDashboard() {
         </div>
         <input className="search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search students or tracks" />
         <div className="student-grid">
-          {students.map((student) => {
-            const avg = Math.round(student.scores.reduce((total, score) => total + score, 0) / student.scores.length);
-            return (
-              <article className="student-card" key={student.name}>
-                <div>
-                  <h3>{student.name}</h3>
-                  <p>{student.track}</p>
-                </div>
-                <span className={`badge ${avg >= 85 ? "good" : avg >= 70 ? "warn" : "risk"}`}>{avg}%</span>
-                <div className="mini-bars">
-                  {student.scores.map((score, index) => <span key={index} style={{ height: `${score}%` }} />)}
-                </div>
-              </article>
-            );
-          })}
+          {students.length > 0 ? (
+            students.map((student) => {
+              const avg = Math.round(student.scores.reduce((total, score) => total + score, 0) / student.scores.length);
+              return (
+                <article className="student-card" key={student.name}>
+                  <div>
+                    <h3>{student.name}</h3>
+                    <p>{student.track}</p>
+                  </div>
+                  <span className={`badge ${avg >= 85 ? "good" : avg >= 70 ? "warn" : "risk"}`}>{avg}%</span>
+                  <div className="mini-bars">
+                    {student.scores.map((score, index) => <span key={index} style={{ height: `${score}%` }} />)}
+                  </div>
+                </article>
+              );
+            })
+          ) : (
+            <div className="empty-state">
+              <span className="eyebrow">No students yet</span>
+              <p>Student performance will appear here once mentor assignments are available.</p>
+            </div>
+          )}
         </div>
       </div>
     </section>

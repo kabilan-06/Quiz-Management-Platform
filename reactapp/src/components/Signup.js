@@ -172,7 +172,7 @@ export default function Signup() {
         )}
 
         {/* Mentor selection for users */}
-        {role === "USER" && mentors.length > 0 && (
+        {role === "USER" && (
           <select
             value={mentorId}
             onChange={e => setMentorId(e.target.value)}
