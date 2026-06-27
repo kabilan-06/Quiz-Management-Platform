@@ -13,27 +13,6 @@ import "./App.css";
 
 const API_BASE_URL = "https://quiz-management-platform.onrender.com/api";
 
-const DEMO_USERS = {
-  USER: {
-    id: 101,
-    name: "Aarav Student",
-    email: "student@quiz.local",
-    role: "USER",
-  },
-  ADMIN: {
-    id: 202,
-    name: "Mira Admin",
-    email: "admin@quiz.local",
-    role: "ADMIN",
-  },
-  MENTOR: {
-    id: 303,
-    name: "Dev Mentor",
-    email: "mentor@quiz.local",
-    role: "MENTOR",
-  },
-};
-
 const MOCK_QUIZZES = [
   {
     id: 1,
@@ -127,6 +106,13 @@ const MENTOR_STUDENTS = [
   { name: "Meera", track: "Full Stack", scores: [86, 92, 89] },
   { name: "Nikhil", track: "Java", scores: [64, 72, 75] },
   { name: "Sara", track: "React", scores: [90, 93, 96] },
+];
+
+const MOCK_ACCOUNTS = [
+  { id: 101, name: "Aarav Student", role: "USER" },
+  { id: 102, name: "Diya Student", role: "USER" },
+  { id: 201, name: "Dev Mentor", role: "MENTOR" },
+  { id: 202, name: "Mira Mentor", role: "MENTOR" },
 ];
 
 function getStoredUser() {
@@ -234,6 +220,7 @@ function App() {
                 <Route path="/results/:quizId" element={<QuizResult />} />
                 <Route path="/results" element={<Results user={auth.user} />} />
                 <Route path="/mentor-dashboard" element={<MentorDashboard />} />
+                <Route path="/manage-users" element={<AdminUsers currentUser={auth.user} />} />
                 <Route path="*" element={<Navigate to="/home" replace />} />
               </Routes>
             </ProtectedShell>
@@ -273,6 +260,9 @@ function Navbar({ user, onLogout }) {
         <NavLink to="/home">Dashboard</NavLink>
         {user.role === "ADMIN" && <NavLink to="/create-quiz">Create Quiz</NavLink>}
         {user.role === "ADMIN" && <NavLink to="/add-question">Add Question</NavLink>}
+        {user.role === "ADMIN" && <NavLink to="/manage-users">Manage Users</NavLink>}
+        {user.role === "MENTOR" && <NavLink to="/create-quiz">Create Quiz</NavLink>}
+        {user.role === "MENTOR" && <NavLink to="/add-question">Add Question</NavLink>}
         {user.role === "USER" && <NavLink to="/take-quiz">Take Quiz</NavLink>}
         {user.role === "USER" && <NavLink to="/results">Results</NavLink>}
         {user.role === "MENTOR" && <NavLink to="/mentor-dashboard">Mentor</NavLink>}
@@ -318,15 +308,10 @@ function Login({ auth }) {
       });
       navigate("/home");
     } catch {
-      setError("Invalid credentials or the server is unavailable. Demo login is ready below.");
+      setError("Invalid credentials or the server is unavailable.");
     } finally {
       setLoading(false);
     }
-  };
-
-  const demoLogin = (role) => {
-    auth.login(DEMO_USERS[role]);
-    navigate("/home");
   };
 
   if (auth.user) return <Navigate to="/home" replace />;
@@ -370,11 +355,6 @@ function Login({ auth }) {
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
-        <div className="demo-grid" aria-label="Demo login options">
-          <button className="button soft" onClick={() => demoLogin("USER")} type="button">User demo</button>
-          <button className="button soft" onClick={() => demoLogin("ADMIN")} type="button">Admin demo</button>
-          <button className="button soft" onClick={() => demoLogin("MENTOR")} type="button">Mentor demo</button>
-        </div>
         <p className="auth-footer">
           New here? <Link to="/signup">Create an account</Link>
         </p>
@@ -385,13 +365,36 @@ function Login({ auth }) {
 
 function Signup({ auth }) {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "USER" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "USER", mentorKey: "" });
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault();
-    const user = { id: Date.now(), ...form };
-    auth.login(user);
-    navigate("/home");
+    setMessage("");
+    setLoading(true);
+
+    try {
+      const params = form.role === "MENTOR" ? { mentorKey: form.mentorKey } : {};
+      await axios.post(
+        `${API_BASE_URL}/auth/signup`,
+        {
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          role: form.role,
+        },
+        { params }
+      );
+
+      const user = { id: Date.now(), name: form.name, email: form.email, role: form.role };
+      auth.login(user);
+      navigate("/home");
+    } catch (error) {
+      setMessage(error.response?.data || "Signup failed. Please check your details.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -399,6 +402,7 @@ function Signup({ auth }) {
       <section className="auth-panel">
         <span className="eyebrow">Create account</span>
         <h1>Join QuizForge.</h1>
+        {message && <div className="notice error">{message}</div>}
         <form className="stack" onSubmit={submit}>
           <label>Name<input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></label>
           <label>Email<input value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} type="email" required /></label>
@@ -407,11 +411,24 @@ function Signup({ auth }) {
             Role
             <select value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value })}>
               <option value="USER">User</option>
-              <option value="ADMIN">Admin</option>
               <option value="MENTOR">Mentor</option>
             </select>
           </label>
-          <button className="button primary" type="submit">Create account</button>
+          {form.role === "MENTOR" && (
+            <label>
+              Mentor key
+              <input
+                value={form.mentorKey}
+                onChange={(event) => setForm({ ...form, mentorKey: event.target.value })}
+                placeholder="Enter mentor signup key"
+                required
+                type="password"
+              />
+            </label>
+          )}
+          <button className="button primary" disabled={loading} type="submit">
+            {loading ? "Creating account..." : "Create account"}
+          </button>
         </form>
         <p className="auth-footer">
           Already registered? <Link to="/">Sign in</Link>
@@ -461,7 +478,7 @@ function Home({ user, quizzes }) {
 
 function RoleAction({ role }) {
   if (role === "ADMIN") return <Link className="button primary" to="/create-quiz">Create quiz</Link>;
-  if (role === "MENTOR") return <Link className="button primary" to="/mentor-dashboard">Review class</Link>;
+  if (role === "MENTOR") return <Link className="button primary" to="/create-quiz">Create quiz</Link>;
   return <Link className="button primary" to="/take-quiz">Start quiz</Link>;
 }
 
@@ -795,13 +812,110 @@ function MentorDashboard() {
   );
 }
 
+function AdminUsers({ currentUser }) {
+  const [accounts, setAccounts] = useState(MOCK_ACCOUNTS);
+  const [query, setQuery] = useState("");
+  const [message, setMessage] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
+
+  useEffect(() => {
+    if (currentUser.role !== "ADMIN") return;
+
+    axios
+      .get(`${API_BASE_URL}/auth/users`)
+      .then((response) => {
+        if (Array.isArray(response.data)) {
+          setAccounts(response.data.filter((account) => account.role !== "ADMIN"));
+        }
+      })
+      .catch(() => setAccounts(MOCK_ACCOUNTS));
+  }, [currentUser.role]);
+
+  if (currentUser.role !== "ADMIN") {
+    return <AccessDenied message="Only administrators can manage users." />;
+  }
+
+  const filteredAccounts = accounts.filter((account) =>
+    `${account.name} ${account.role}`.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const deleteAccount = async (account) => {
+    setMessage("");
+    setDeletingId(account.id);
+
+    try {
+      await axios.delete(`${API_BASE_URL}/auth/users/${account.id}`, {
+        params: { requesterRole: currentUser.role },
+      });
+      setAccounts((items) => items.filter((item) => item.id !== account.id));
+      setMessage(`${account.name} was deleted.`);
+    } catch (error) {
+      if (String(account.id).length >= 13) {
+        setAccounts((items) => items.filter((item) => item.id !== account.id));
+        setMessage(`${account.name} was removed from the local list.`);
+      } else {
+        setMessage(error.response?.data || "Unable to delete this account.");
+      }
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  return (
+    <section className="section">
+      <div className="section-heading with-action">
+        <div>
+          <span className="eyebrow">Admin control</span>
+          <h1>Manage users and mentors</h1>
+          <p>Remove non-admin accounts from the platform.</p>
+        </div>
+        <Link className="button soft" to="/create-quiz">Create quiz</Link>
+      </div>
+      {message && <div className={message.includes("Unable") ? "notice error" : "notice success"}>{message}</div>}
+      <input
+        className="search-input"
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="Search users or mentors"
+      />
+      <div className="account-list">
+        {filteredAccounts.map((account) => (
+          <article className="account-row" key={account.id}>
+            <div>
+              <h3>{account.name}</h3>
+              <p>Account ID {account.id}</p>
+            </div>
+            <span className={`badge ${account.role === "MENTOR" ? "warn" : "good"}`}>{account.role}</span>
+            <button
+              className="button danger"
+              disabled={deletingId === account.id}
+              onClick={() => deleteAccount(account)}
+              type="button"
+            >
+              {deletingId === account.id ? "Deleting..." : "Delete"}
+            </button>
+          </article>
+        ))}
+        {filteredAccounts.length === 0 && (
+          <div className="empty-state">
+            <span className="eyebrow">No accounts</span>
+            <p>No users or mentors match your search.</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function QuizForm({ onCreated }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ title: "", description: "", timeLimit: 10 });
   const [message, setMessage] = useState("");
   const role = localStorage.getItem("role");
 
-  if (role !== "ADMIN") return <AccessDenied message="Only administrators can create quizzes." />;
+  if (!["ADMIN", "MENTOR"].includes(role)) {
+    return <AccessDenied message="Only administrators and mentors can create quizzes." />;
+  }
 
   const submit = async (event) => {
     event.preventDefault();
@@ -845,7 +959,9 @@ function QuestionForm({ quizzes }) {
     if (!form.quizId && quizzes[0]) setForm((value) => ({ ...value, quizId: quizzes[0].id }));
   }, [quizzes, form.quizId]);
 
-  if (role !== "ADMIN") return <AccessDenied message="Only administrators can add questions." />;
+  if (!["ADMIN", "MENTOR"].includes(role)) {
+    return <AccessDenied message="Only administrators and mentors can add questions." />;
+  }
 
   const submit = async (event) => {
     event.preventDefault();
@@ -897,7 +1013,7 @@ function FormShell({ title, subtitle, children }) {
   return (
     <section className="form-shell">
       <div className="section-heading">
-        <span className="eyebrow">Admin tools</span>
+        <span className="eyebrow">Quiz tools</span>
         <h1>{title}</h1>
         <p>{subtitle}</p>
       </div>

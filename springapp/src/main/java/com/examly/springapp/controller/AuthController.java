@@ -18,9 +18,8 @@ import java.util.List;
 
 public class AuthController {
 
-    // Admin key for signup (should be set in application.properties)
-    @Value("${app.admin.key:SECRET_ADMIN_KEY}")
-    private String adminKey;
+    @Value("${app.mentor.key:SECRET_MENTOR_KEY}")
+    private String mentorKey;
 
     @Autowired
     private UserRepository userRepository;
@@ -28,15 +27,18 @@ public class AuthController {
     // --- SIGNUP ---
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody User user,
-            @RequestParam(value = "adminKey", required = false) String providedAdminKey,
+            @RequestParam(value = "mentorKey", required = false) String providedMentorKey,
             @RequestParam(value = "mentorId", required = false) Long mentorId) {
         if (userRepository.existsByEmail(user.getEmail())) {
             return ResponseEntity.badRequest().body("Email already exists");
         }
-        // Admin signup requires adminKey
+        // Admin accounts must be created outside public signup.
         if ("ADMIN".equalsIgnoreCase(user.getRole())) {
-            if (providedAdminKey == null || !providedAdminKey.equals(adminKey)) {
-                return ResponseEntity.status(403).body("Invalid admin key");
+            return ResponseEntity.status(403).body("Admin signup is disabled");
+        }
+        if ("MENTOR".equalsIgnoreCase(user.getRole())) {
+            if (providedMentorKey == null || !providedMentorKey.equals(mentorKey)) {
+                return ResponseEntity.status(403).body("Invalid mentor key");
             }
         }
         // Mentor assignment for users
@@ -82,6 +84,29 @@ public class AuthController {
         return userRepository.findByRole("MENTOR").stream()
                 .map(u -> new UserDTO(u.getId(), u.getName(), u.getRole()))
                 .toList();
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id,
+            @RequestParam(value = "requesterRole", required = false) String requesterRole) {
+        if (!"ADMIN".equalsIgnoreCase(requesterRole)) {
+            return ResponseEntity.status(403).body("Only admins can delete users");
+        }
+
+        return userRepository.findById(id)
+                .map(user -> {
+                    if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+                        return ResponseEntity.status(403).body("Admin accounts cannot be deleted here");
+                    }
+
+                    userRepository.findByMentorId(id).forEach(mentee -> {
+                        mentee.setMentor(null);
+                        userRepository.save(mentee);
+                    });
+                    userRepository.delete(user);
+                    return ResponseEntity.ok("User deleted successfully");
+                })
+                .orElseGet(() -> ResponseEntity.status(404).body("User not found"));
     }
 
 }

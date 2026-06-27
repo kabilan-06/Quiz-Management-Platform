@@ -2,7 +2,6 @@ package com.examly.springapp.controller;
 
 import com.examly.springapp.dto.QuizDTO;
 import com.examly.springapp.service.QuizService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +11,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/quizzes")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class QuizController {
     private final QuizService quizService;
+
+    public QuizController(QuizService quizService) {
+        this.quizService = quizService;
+    }
 
     // POST /api/quizzes/add (alias for createQuiz)
     @PostMapping("/add")

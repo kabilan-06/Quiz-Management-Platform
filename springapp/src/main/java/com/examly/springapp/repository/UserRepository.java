@@ -11,4 +11,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Find all mentors
     java.util.List<User> findByRole(String role);
+
+    java.util.List<User> findByMentorId(Long mentorId);
 }
