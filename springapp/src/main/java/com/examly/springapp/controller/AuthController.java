@@ -64,9 +64,14 @@ public class AuthController {
 
     // --- GET ALL USERS ---
     @GetMapping("/users")
-    public List<UserDTO> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(u -> new UserDTO(u.getId(), u.getName(), u.getRole()))
+    public List<UserDTO> getAllUsers(@RequestParam(value = "mentorId", required = false) Long mentorId) {
+        List<User> users = mentorId == null
+                ? userRepository.findAll()
+                : userRepository.findByMentorId(mentorId);
+
+        return users.stream()
+                .map(u -> new UserDTO(u.getId(), u.getName(), u.getRole(),
+                        u.getMentor() != null ? u.getMentor().getId() : null))
                 .toList();
     }
 
@@ -74,7 +79,8 @@ public class AuthController {
     @GetMapping("/user")
     public ResponseEntity<?> getUserByEmail(@RequestParam String email) {
         return userRepository.findByEmail(email)
-                .map(u -> ResponseEntity.ok(new UserDTO(u.getId(), u.getName(), u.getRole())))
+                .map(u -> ResponseEntity.ok(new UserDTO(u.getId(), u.getName(), u.getRole(),
+                        u.getMentor() != null ? u.getMentor().getId() : null)))
                 .orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
@@ -82,7 +88,7 @@ public class AuthController {
     @GetMapping("/mentors")
     public List<UserDTO> getAllMentors() {
         return userRepository.findByRole("MENTOR").stream()
-                .map(u -> new UserDTO(u.getId(), u.getName(), u.getRole()))
+                .map(u -> new UserDTO(u.getId(), u.getName(), u.getRole(), null))
                 .toList();
     }
 

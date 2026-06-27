@@ -12,6 +12,7 @@ import {
 import "./App.css";
 
 const API_BASE_URL = "https://quiz-management-platform.onrender.com/api";
+const QUIZ_ATTEMPT_HISTORY_KEY = "quizAttemptHistory";
 
 const MOCK_QUIZZES = [
   {
@@ -118,6 +119,52 @@ function percent(score, total) {
   return Math.round((Number(score) / Number(total)) * 100);
 }
 
+function readQuizAttemptHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(QUIZ_ATTEMPT_HISTORY_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function getStoredQuizAttempts(userId) {
+  const history = readQuizAttemptHistory();
+  return Array.isArray(history[String(userId)]) ? history[String(userId)] : [];
+}
+
+function storeQuizAttempt(userId, attempt) {
+  const history = readQuizAttemptHistory();
+  const key = String(userId);
+  const existing = Array.isArray(history[key]) ? history[key] : [];
+  const nextAttempt = {
+    ...attempt,
+    userId,
+    id: attempt.id ?? `${attempt.quizId}-${attempt.completedAt}-${existing.length}`,
+  };
+
+  history[key] = [...existing, nextAttempt]
+    .filter(Boolean)
+    .sort((left, right) => new Date(right.completedAt ?? 0) - new Date(left.completedAt ?? 0));
+
+  localStorage.setItem(QUIZ_ATTEMPT_HISTORY_KEY, JSON.stringify(history));
+}
+
+function mergeQuizAttempts(remoteAttempts = [], localAttempts = []) {
+  const merged = new Map();
+
+  [...remoteAttempts, ...localAttempts].forEach((attempt) => {
+    if (!attempt) return;
+    const key = attempt.id ?? `${attempt.quizId}-${attempt.completedAt}-${attempt.score}-${attempt.totalQuestions}`;
+    if (!merged.has(key)) {
+      merged.set(key, attempt);
+    }
+  });
+
+  return Array.from(merged.values()).sort(
+    (left, right) => new Date(right.completedAt ?? 0) - new Date(left.completedAt ?? 0)
+  );
+}
+
 function normalizeQuiz(quiz, index = 0) {
   return {
     id: quiz.id ?? quiz.quizId ?? index + 1,
@@ -204,7 +251,7 @@ function App() {
                 <Route path="/take-quiz/:quizId" element={<QuizRunner quizzes={quizzes} user={auth.user} />} />
                 <Route path="/results/:quizId" element={<QuizResult />} />
                 <Route path="/results" element={<Results user={auth.user} />} />
-                <Route path="/mentor-dashboard" element={<MentorDashboard />} />
+                <Route path="/mentor-dashboard" element={<MentorDashboard currentUser={auth.user} />} />
                 <Route path="/manage-users" element={<AdminUsers currentUser={auth.user} />} />
                 <Route path="*" element={<Navigate to="/home" replace />} />
               </Routes>
@@ -620,6 +667,7 @@ function QuizRunner({ quizzes, user }) {
       score,
       totalQuestions: questions.length,
       completedAt: new Date().toISOString(),
+      userId: user.id,
     };
 
     try {
@@ -636,6 +684,7 @@ function QuizRunner({ quizzes, user }) {
       // The local result still gives the student immediate feedback.
     } finally {
       sessionStorage.setItem("latestQuizResult", JSON.stringify(result));
+      storeQuizAttempt(user.id, result);
       navigate(`/results/${quizId}`);
     }
   };
@@ -744,15 +793,14 @@ function Results({ user }) {
     axios
       .get(`${API_BASE_URL}/quiz-attempts/user/${user.id}`)
       .then((response) => {
+        const localResults = [...getStoredQuizAttempts(user.id), ...(latestResult ? [latestResult] : [])];
         if (Array.isArray(response.data) && response.data.length > 0) {
-          setResults(response.data);
-        } else if (latestResult) {
-          setResults([latestResult]);
+          setResults(mergeQuizAttempts(response.data, localResults));
         } else {
-          setResults([]);
+          setResults(mergeQuizAttempts(localResults));
         }
       })
-      .catch(() => setResults(latestResult ? [latestResult] : []))
+      .catch(() => setResults(mergeQuizAttempts([...(latestResult ? [latestResult] : []), ...getStoredQuizAttempts(user.id)])))
       .finally(() => setLoading(false));
   }, [user.id]);
 
@@ -816,10 +864,65 @@ function Results({ user }) {
   );
 }
 
-function MentorDashboard() {
+function MentorDashboard({ currentUser }) {
   const [query, setQuery] = useState("");
-  const students = [];
-  const classAverage = 0;
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!currentUser || currentUser.role !== "MENTOR") {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    axios
+      .get(`${API_BASE_URL}/auth/users`, { params: { mentorId: currentUser.id } })
+      .then((response) => {
+        const mentees = Array.isArray(response.data) ? response.data.filter((student) => student.role === "USER") : [];
+
+        Promise.all(
+          mentees.map(async (mentee) => {
+            try {
+              const resultsResponse = await axios.get(`${API_BASE_URL}/quiz-attempts/user/${mentee.id}`);
+              const remoteResults = Array.isArray(resultsResponse.data) ? resultsResponse.data : [];
+              const localResults = getStoredQuizAttempts(mentee.id);
+              return { ...mentee, results: mergeQuizAttempts(remoteResults, localResults) };
+            } catch {
+              return { ...mentee, results: getStoredQuizAttempts(mentee.id) };
+            }
+          })
+        ).then((items) => {
+          setStudents(items);
+          setLoading(false);
+        });
+      })
+      .catch(() => {
+        setError("Failed to load your mentees.");
+        setStudents([]);
+        setLoading(false);
+      });
+  }, [currentUser]);
+
+  const filteredStudents = students.filter((student) =>
+    `${student.name} ${student.email ?? ""}`.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const classAverage = filteredStudents.length
+    ? Math.round(
+      filteredStudents.reduce((total, student) => {
+        const latest = student.results?.[0];
+        return total + (latest ? percent(latest.score, latest.totalQuestions) : 0);
+      }, 0) / filteredStudents.length
+    )
+    : 0;
+
+  if (!currentUser || currentUser.role !== "MENTOR") {
+    return <AccessDenied message="Only mentors can view this page." />;
+  }
 
   return (
     <section className="two-column mentor-layout">
@@ -832,30 +935,56 @@ function MentorDashboard() {
       <div>
         <div className="section-heading">
           <h1>Student grid</h1>
-          <p>{students.length} learners in view.</p>
+          <p>{filteredStudents.length} learners in view.</p>
         </div>
         <input className="search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search students or tracks" />
         <div className="student-grid">
-          {students.length > 0 ? (
-            students.map((student) => {
-              const avg = Math.round(student.scores.reduce((total, score) => total + score, 0) / student.scores.length);
+          {loading ? (
+            <div className="empty-state">
+              <span className="eyebrow">Loading</span>
+              <p>Fetching your assigned students.</p>
+            </div>
+          ) : error ? (
+            <div className="empty-state">
+              <span className="eyebrow">Error</span>
+              <p>{error}</p>
+            </div>
+          ) : filteredStudents.length > 0 ? (
+            filteredStudents.map((student) => {
+              const latestAttempt = student.results?.[0];
+              const scorePercent = latestAttempt ? percent(latestAttempt.score, latestAttempt.totalQuestions) : 0;
+              const attemptCount = student.results?.length ?? 0;
               return (
                 <article className="student-card" key={student.name}>
                   <div>
                     <h3>{student.name}</h3>
-                    <p>{student.track}</p>
+                    <p>{student.email ?? `User #${student.id}`}</p>
                   </div>
-                  <span className={`badge ${avg >= 85 ? "good" : avg >= 70 ? "warn" : "risk"}`}>{avg}%</span>
+                  <span className={`badge ${scorePercent >= 85 ? "good" : scorePercent >= 70 ? "warn" : "risk"}`}>{scorePercent}%</span>
+                  <p style={{ marginTop: '0.75rem', fontSize: '0.9rem', color: 'var(--secondary-color)' }}>
+                    {attemptCount} attempt{attemptCount === 1 ? '' : 's'}
+                  </p>
                   <div className="mini-bars">
-                    {student.scores.map((score, index) => <span key={index} style={{ height: `${score}%` }} />)}
+                    {student.results?.slice(0, 3).map((result, index) => (
+                      <span key={result.id ?? index} style={{ height: `${percent(result.score, result.totalQuestions)}%` }} />
+                    ))}
                   </div>
+                  {latestAttempt ? (
+                    <p style={{ marginTop: '0.75rem', fontSize: '0.9rem', color: 'var(--secondary-color)' }}>
+                      Latest quiz: {latestAttempt.quizTitle ?? `Quiz ${latestAttempt.quizId}`} - {latestAttempt.score}/{latestAttempt.totalQuestions}
+                    </p>
+                  ) : (
+                    <p style={{ marginTop: '0.75rem', fontSize: '0.9rem', color: 'var(--secondary-color)' }}>
+                      No quiz attempts yet.
+                    </p>
+                  )}
                 </article>
               );
             })
           ) : (
             <div className="empty-state">
               <span className="eyebrow">No students yet</span>
-              <p>Student performance will appear here once mentor assignments are available.</p>
+              <p>Students assigned to this mentor will appear here once they are linked from signup.</p>
             </div>
           )}
         </div>

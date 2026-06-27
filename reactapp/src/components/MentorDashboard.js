@@ -26,14 +26,14 @@ export default function MentorDashboard() {
 
     useEffect(() => {
         if (!mentor) return;
-        
+
         setLoading(true);
         axios
             .get(`https://quiz-management-platform.onrender.com/api/auth/users?mentorId=${mentor.id}`)
             .then((res) => {
-                const assignedMentees = (res.data || []).filter(
-                    student => student.mentorId === mentor.id
-                );
+                const assignedMentees = Array.isArray(res.data)
+                    ? res.data.filter(student => student.role === "USER")
+                    : [];
                 setMentees(assignedMentees);
                 setLoading(false);
             })
@@ -45,7 +45,7 @@ export default function MentorDashboard() {
     }, [mentor]);
 
     const filteredMentees = useMemo(() => {
-        return mentees.filter(mentee => 
+        return mentees.filter(mentee =>
             mentee.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             mentee.id?.toString().includes(searchTerm)
         );
@@ -76,7 +76,7 @@ export default function MentorDashboard() {
                 <h1 className={styles.title}>{t('mentorDashboard')}</h1>
                 <p className={styles.subtitle}>Monitor and track your mentees' progress</p>
             </div>
-            
+
             <div className={styles.profileCard}>
                 <div className={styles.avatar}>
                     {mentor.name ? mentor.name[0].toUpperCase() : 'M'}
@@ -102,7 +102,7 @@ export default function MentorDashboard() {
 
             {loading && <p className={styles.loading}>{t('loading')}</p>}
             {error && <div className={styles.error}>{error}</div>}
-            
+
             {!loading && filteredMentees.length === 0 && searchTerm === "" && (
                 <div className={styles.emptyState}>
                     <div className={styles.emptyIcon}>👥</div>
@@ -140,7 +140,7 @@ export default function MentorDashboard() {
 
                     {totalPages > 1 && (
                         <div className={styles.pagination}>
-                            <button 
+                            <button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
                                 className={styles.paginationButton}
@@ -150,7 +150,7 @@ export default function MentorDashboard() {
                             <span className={styles.paginationInfo}>
                                 {t('page')} {currentPage} {t('of')} {totalPages}
                             </span>
-                            <button 
+                            <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
                                 className={styles.paginationButton}
@@ -193,7 +193,7 @@ function MenteeResults({ userId }) {
                 {results.slice(0, 3).map((r) => {
                     const percentage = r.score / r.totalQuestions;
                     const scoreClass = percentage >= 0.7 ? 'pass' : percentage >= 0.5 ? 'warn' : 'fail';
-                    
+
                     return (
                         <div key={r.id} className={styles.resultItem}>
                             <span className={styles.resultName}>
