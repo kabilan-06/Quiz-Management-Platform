@@ -1,6 +1,6 @@
-package com.examly.springapp.exception;
+package com.kabilan.assessment.exception;
 
-import com.examly.springapp.dto.ErrorResponse;
+import com.kabilan.assessment.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

@@ -1,8 +1,8 @@
-package com.examly.springapp;
+package com.kabilan.assessment;
 
-import com.examly.springapp.dto.*;
-// import com.examly.springapp.model.*; // (Unused)
-import com.examly.springapp.repository.*;
+import com.kabilan.assessment.dto.*;
+// import com.kabilan.assessment.model.*; // (Unused)
+import com.kabilan.assessment.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

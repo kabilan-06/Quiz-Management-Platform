@@ -1,6 +1,6 @@
-package com.examly.springapp.repository;
+package com.kabilan.assessment.repository;
 
-import com.examly.springapp.model.User;
+import com.kabilan.assessment.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

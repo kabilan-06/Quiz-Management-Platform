@@ -1,9 +1,9 @@
 
-package com.examly.springapp.controller;
+package com.kabilan.assessment.controller;
 
-import com.examly.springapp.model.User;
-import com.examly.springapp.repository.UserRepository;
-import com.examly.springapp.dto.UserDTO;
+import com.kabilan.assessment.model.User;
+import com.kabilan.assessment.repository.UserRepository;
+import com.kabilan.assessment.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

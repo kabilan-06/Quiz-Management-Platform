@@ -1,4 +1,4 @@
-package com.examly.springapp.model;
+package com.kabilan.assessment.model;
 
 import jakarta.persistence.*;
 import lombok.*;
