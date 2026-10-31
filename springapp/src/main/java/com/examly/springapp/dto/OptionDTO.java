@@ -1,4 +1,4 @@
-package com.examly.springapp.dto;
+package com.kabilan.assessment.dto;
 
 public class OptionDTO {
     private Long id;

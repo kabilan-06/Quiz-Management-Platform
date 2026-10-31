@@ -1,6 +1,6 @@
-package com.examly.springapp.repository;
+package com.kabilan.assessment.repository;
 
-import com.examly.springapp.model.Quiz;
+import com.kabilan.assessment.model.Quiz;
 
 import java.util.Optional;
 

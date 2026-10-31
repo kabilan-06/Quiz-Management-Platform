@@ -1,9 +1,9 @@
-package com.examly.springapp.service;
+package com.kabilan.assessment.service;
 
-import com.examly.springapp.dto.QuizDTO;
-import com.examly.springapp.exception.ResourceNotFoundException;
-import com.examly.springapp.model.Quiz;
-import com.examly.springapp.repository.QuizRepository;
+import com.kabilan.assessment.dto.QuizDTO;
+import com.kabilan.assessment.exception.ResourceNotFoundException;
+import com.kabilan.assessment.model.Quiz;
+import com.kabilan.assessment.repository.QuizRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

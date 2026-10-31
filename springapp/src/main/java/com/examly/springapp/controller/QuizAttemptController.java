@@ -1,7 +1,7 @@
-package com.examly.springapp.controller;
+package com.kabilan.assessment.controller;
 
-import com.examly.springapp.dto.QuizAttemptDTO;
-import com.examly.springapp.service.QuizAttemptService;
+import com.kabilan.assessment.dto.QuizAttemptDTO;
+import com.kabilan.assessment.service.QuizAttemptService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

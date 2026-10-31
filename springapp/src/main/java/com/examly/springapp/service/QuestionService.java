@@ -1,9 +1,9 @@
-package com.examly.springapp.service;
+package com.kabilan.assessment.service;
 
-import com.examly.springapp.dto.*;
-import com.examly.springapp.exception.ResourceNotFoundException;
-import com.examly.springapp.model.*;
-import com.examly.springapp.repository.*;
+import com.kabilan.assessment.dto.*;
+import com.kabilan.assessment.exception.ResourceNotFoundException;
+import com.kabilan.assessment.model.*;
+import com.kabilan.assessment.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;

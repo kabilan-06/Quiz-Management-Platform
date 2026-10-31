@@ -1,7 +1,7 @@
-package com.examly.springapp.controller;
+package com.kabilan.assessment.controller;
 
-import com.examly.springapp.dto.QuizDTO;
-import com.examly.springapp.service.QuizService;
+import com.kabilan.assessment.dto.QuizDTO;
+import com.kabilan.assessment.service.QuizService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

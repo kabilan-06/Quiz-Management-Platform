@@ -1,7 +1,7 @@
-package com.examly.springapp.repository;
+package com.kabilan.assessment.repository;
 
-import com.examly.springapp.model.Question;
-import com.examly.springapp.model.Quiz;
+import com.kabilan.assessment.model.Question;
+import com.kabilan.assessment.model.Quiz;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
