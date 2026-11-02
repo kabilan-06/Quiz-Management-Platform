@@ -5,6 +5,8 @@ const translations = {
     welcome: 'Welcome to QuizMaster Pro',
     dashboard: 'Dashboard',
     mentorDashboard: 'Mentor Dashboard',
+    leaderboard: 'Leaderboard',
+    smartReview: 'Smart Review',
     startQuiz: 'Start a Quiz',
     viewResults: 'View Results',
     studyFlashcards: 'Study Flashcards',

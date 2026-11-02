@@ -10,6 +10,19 @@ import {
   useParams,
 } from "react-router-dom";
 import "./App.css";
+import LeaderboardPage from "./components/LeaderboardPage";
+import ReviewDeck from "./components/ReviewDeck";
+import { useTheme } from "./contexts/ThemeContext";
+import { useLanguage } from "./contexts/LanguageContext";
+import {
+  BADGES,
+  addMissedQuestions,
+  getDueReviewCards,
+  getProgress,
+  getMasteredReviewCount,
+  levelInfo,
+  recordQuizOutcome,
+} from "./utils/progress";
 
 const API_BASE_URL = "https://quiz-management-platform.onrender.com/api";
 const QUIZ_ATTEMPT_HISTORY_KEY = "quizAttemptHistory";
@@ -249,8 +262,10 @@ function App() {
                 <Route path="/add-question" element={<QuestionForm quizzes={quizzes} />} />
                 <Route path="/take-quiz" element={<QuizSelection quizzes={quizzes} />} />
                 <Route path="/take-quiz/:quizId" element={<QuizRunner quizzes={quizzes} user={auth.user} />} />
-                <Route path="/results/:quizId" element={<QuizResult />} />
+                <Route path="/results/:quizId" element={<QuizResult user={auth.user} />} />
                 <Route path="/results" element={<Results user={auth.user} />} />
+                <Route path="/leaderboard" element={<LeaderboardPage quizzes={quizzes} currentUser={auth.user} />} />
+                <Route path="/review" element={<ReviewDeck user={auth.user} />} />
                 <Route path="/mentor-dashboard" element={<MentorDashboard currentUser={auth.user} />} />
                 <Route path="/manage-users" element={<AdminUsers currentUser={auth.user} />} />
                 <Route path="*" element={<Navigate to="/home" replace />} />
@@ -276,6 +291,8 @@ function ProtectedShell({ auth, children }) {
 
 function Navbar({ user, onLogout }) {
   const navigate = useNavigate();
+  const { isDark, toggleTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
 
   const logout = () => {
     onLogout();
@@ -289,7 +306,7 @@ function Navbar({ user, onLogout }) {
         <span>QuizForge</span>
       </Link>
       <nav className="nav-links" aria-label="Primary navigation">
-        <NavLink to="/home">Dashboard</NavLink>
+        <NavLink to="/home">{t("dashboard")}</NavLink>
         {user.role === "ADMIN" && <NavLink to="/create-quiz">Create Quiz</NavLink>}
         {user.role === "ADMIN" && <NavLink to="/add-question">Add Question</NavLink>}
         {user.role === "ADMIN" && <NavLink to="/manage-users">Manage Users</NavLink>}
@@ -297,8 +314,25 @@ function Navbar({ user, onLogout }) {
         {user.role === "MENTOR" && <NavLink to="/add-question">Add Question</NavLink>}
         {user.role === "USER" && <NavLink to="/take-quiz">Take Quiz</NavLink>}
         {user.role === "USER" && <NavLink to="/results">Results</NavLink>}
+        {user.role === "USER" && <NavLink to="/review">Smart Review</NavLink>}
+        <NavLink to="/leaderboard">Leaderboard</NavLink>
         {user.role === "MENTOR" && <NavLink to="/mentor-dashboard">Mentor</NavLink>}
       </nav>
+      <div className="nav-controls">
+        <select
+          className="lang-select"
+          value={language}
+          onChange={(event) => setLanguage(event.target.value)}
+          aria-label="Language"
+        >
+          <option value="en">EN</option>
+          <option value="es">ES</option>
+          <option value="fr">FR</option>
+        </select>
+        <button className="button ghost icon-only" type="button" onClick={toggleTheme} aria-label="Toggle dark mode">
+          {isDark ? "☀️" : "🌙"}
+        </button>
+      </div>
       <div className="user-chip">
         <span>{user.name}</span>
         <strong>{user.role}</strong>
@@ -532,6 +566,7 @@ function Home({ user, quizzes }) {
           </article>
         ))}
       </div>
+      <ProgressPanel userId={user.id} role={user.role} onReviewDue={getDueReviewCards(user.id).length} />
       <section className="section">
         <div className="section-heading">
           <h2>Current quiz catalog</h2>
@@ -541,6 +576,61 @@ function Home({ user, quizzes }) {
           {quizzes.map((quiz) => <QuizCard quiz={quiz} key={quiz.id} />)}
         </div>
       </section>
+    </section>
+  );
+}
+
+function ProgressPanel({ userId, role, onReviewDue }) {
+  const progress = getProgress(userId);
+  const level = levelInfo(progress.xp);
+  const dueCount = onReviewDue;
+  const mastered = getMasteredReviewCount(userId);
+
+  if (!progress.history.length) {
+    return (
+      <section className="progress-panel starter">
+        <div className="progress-intro">
+          <span className="eyebrow">Your learning engine</span>
+          <h2>Earn XP, build a streak, unlock badges.</h2>
+          <p>
+            Every quiz you finish is worth XP and keeps your daily streak alive —
+            and every question you miss becomes a flashcard that resurfaces right
+            before you would forget it.
+          </p>
+        </div>
+        {role === "USER" && <Link className="button primary" to="/take-quiz">Start earning XP</Link>}
+      </section>
+    );
+  }
+
+  return (
+    <section className="progress-panel">
+      <div className="progress-head">
+        <div>
+          <span className="eyebrow">Your learning engine</span>
+          <h2>Level {level.level} · {level.title}</h2>
+          <p>{progress.xp} XP total · {progress.xpIntoLevel}/{level.xpForNextLevel} XP to {level.nextTitle}</p>
+        </div>
+        <div className="progress-quickstats">
+          <span className="streak-chip">🔥 {progress.streak.count} day streak</span>
+          {dueCount > 0 && <Link className="pill reward" to="/review">{dueCount} cards due</Link>}
+          {mastered > 0 && <span className="pill">{mastered} mastered</span>}
+        </div>
+      </div>
+      <div className="xp-track"><span style={{ width: `${level.percentToNext}%` }} /></div>
+      <div className="badge-shelf">
+        {BADGES.map((badge) => (
+          <span
+            className={`badge-chip ${progress.badges.includes(badge.id) ? "unlocked" : "locked"}`}
+            key={badge.id}
+            title={badge.hint}
+          >
+            <span aria-hidden="true" className="badge-icon">{badge.icon}</span>
+            <strong>{badge.label}</strong>
+            <em>{progress.badges.includes(badge.id) ? "Unlocked" : badge.hint}</em>
+          </span>
+        ))}
+      </div>
     </section>
   );
 }
@@ -661,6 +751,17 @@ function QuizRunner({ quizzes, user }) {
       return total + (selectedOption?.correct ? 1 : 0);
     }, 0);
 
+    const missed = questions
+      .filter((item) => {
+        const selectedOption = item.options.find((option) => String(option.id) === String(answers[item.id]));
+        return !selectedOption?.correct;
+      })
+      .map((item) => ({
+        questionId: item.id,
+        questionText: item.questionText,
+        correctText: item.options.find((option) => option.correct)?.optionText ?? "",
+      }));
+
     const result = {
       quizId: Number(quizId),
       quizTitle: quiz.title,
@@ -683,6 +784,16 @@ function QuizRunner({ quizzes, user }) {
     } catch {
       // The local result still gives the student immediate feedback.
     } finally {
+      const bonus = recordQuizOutcome(user.id, {
+        scorePercent: percent(result.score, result.totalQuestions),
+        completedAt: result.completedAt,
+      });
+      addMissedQuestions(user.id, {
+        quizId: Number(quizId),
+        quizTitle: quiz.title,
+        missed,
+      });
+      sessionStorage.setItem("latestQuizBonus", JSON.stringify(bonus));
       sessionStorage.setItem("latestQuizResult", JSON.stringify(result));
       storeQuizAttempt(user.id, result);
       navigate(`/results/${quizId}`);
@@ -743,9 +854,17 @@ function QuizRunner({ quizzes, user }) {
   );
 }
 
-function QuizResult() {
+function QuizResult({ user }) {
   const stored = sessionStorage.getItem("latestQuizResult");
   const result = stored ? JSON.parse(stored) : { quizTitle: "Quiz", score: 4, totalQuestions: 5, completedAt: new Date().toISOString() };
+  const bonus = (() => {
+    try {
+      return JSON.parse(sessionStorage.getItem("latestQuizBonus"));
+    } catch {
+      return null;
+    }
+  })();
+  const dueCount = user ? getDueReviewCards(user.id).length : 0;
   const scorePercent = percent(result.score, result.totalQuestions);
   const passed = scorePercent >= 70;
 
@@ -758,8 +877,26 @@ function QuizResult() {
         </div>
         <h1>{result.quizTitle}</h1>
         <p>{result.score} correct out of {result.totalQuestions} questions.</p>
+        {bonus && (
+          <div className="bonus-strip">
+            <span className="pill reward">+{bonus.xpEarned} XP</span>
+            <span className="pill reward">🔥 {bonus.streak}-day streak</span>
+            <span className="pill reward">Lv {bonus.level.level} · {bonus.level.title}{bonus.leveledUp ? " ↑" : ""}</span>
+            {(bonus.newBadges ?? []).map((id) => {
+              const badge = BADGES.find((item) => item.id === id);
+              return badge ? <span className="pill reward" key={id}>{badge.icon} {badge.label} unlocked</span> : null;
+            })}
+          </div>
+        )}
+        {dueCount > 0 && (
+          <p className="muted">Your missed questions are staged in your Smart Review deck.</p>
+        )}
         <div className="runner-actions centered">
-          <Link className="button primary" to="/take-quiz">Take another quiz</Link>
+          {dueCount > 0 ? (
+            <Link className="button primary" to="/review">Smart review ({dueCount} cards)</Link>
+          ) : (
+            <Link className="button primary" to="/take-quiz">Take another quiz</Link>
+          )}
           <Link className="button soft" to="/results">View all results</Link>
         </div>
       </article>
